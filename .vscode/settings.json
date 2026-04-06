@@ -1,0 +1,9 @@
+{
+  "java.project.sourcePaths": ["backend/ServiceFinder/src/main/java"],
+  "maven.pomfile.autoUpdateEffectivePOM": true,
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.project.referencedLibraries": [
+    "backend/ServiceFinder/target/dependency/*.jar"
+  ],
+  "java.compile.nullAnalysis.mode": "automatic"
+}

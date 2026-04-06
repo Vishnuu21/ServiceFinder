@@ -1,0 +1,22 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "ServiceFinderApplication",
+      "request": "launch",
+      "mainClass": "com.example.ServiceFinder.ServiceFinderApplication",
+      "projectName": ""
+    },
+    {
+      "type": "java",
+      "name": "Spring Boot (Maven)",
+      "request": "launch",
+      "mainClass": "com.example.ServiceFinder.ServiceFinderApplication",
+      "projectName": "ServiceFinder",
+      "vmArgs": "",
+      "env": {},
+      "cwd": "${workspaceFolder}/backend/ServiceFinder"
+    }
+  ]
+}

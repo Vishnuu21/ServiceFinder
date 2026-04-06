@@ -1,0 +1,50 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800&display=swap');
+
+/* shrink leaflet attribution */
+.leaflet-control-attribution {
+  font-size: 9px !important;
+  opacity: 0.5;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* style native date/time inputs */
+input[type="date"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+@theme {
+  --color-brand: #0058be;
+  --color-brand-dark: #004395;
+  --color-brand-light: #d8e2ff;
+  --color-surface: #f8f9fb;
+  --color-card: #ffffff;
+  --color-muted: #f3f4f6;
+  --color-border: #e1e2e4;
+  --color-text: #191c1e;
+  --color-text-secondary: #424754;
+  --color-text-placeholder: #727785;
+  --color-accent: #924700;
+  --color-accent-light: #ffdcc6;
+
+  --font-sans: 'DM Sans', sans-serif;
+  --font-display: 'Sora', sans-serif;
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+}
