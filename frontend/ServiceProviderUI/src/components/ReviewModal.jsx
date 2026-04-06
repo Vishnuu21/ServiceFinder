@@ -111,7 +111,7 @@ export default function ReviewModal({ provider, onClose, onReviewChange }) {
             </h2>
             <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
               {reviews.length} review{reviews.length !== 1 ? "s" : ""}
-              {provider.rating > 0 && ` · ⭐ ${provider.rating} `}
+              {provider.rating > 0 && ` · ⭐ ${provider.rating} avg`}
             </p>
           </div>
           <button onClick={onClose}
