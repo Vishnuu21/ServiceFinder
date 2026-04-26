@@ -27,21 +27,20 @@ function to24h(hour, minute, ampm) {
 
 function SpinBox({ value, min, max, pad, onChange }) {
   return (
-    <div className="flex flex-col items-center">
-      <button
-        type="button"
-        onClick={() => onChange(value >= max ? min : value + 1)}
-        className="w-8 h-6 flex items-center justify-center text-[var(--color-brand)] hover:bg-blue-100 rounded-lg transition-all text-sm font-bold"
-      >▲</button>
-      <div className="w-10 h-9 flex items-center justify-center bg-white border-2 border-[var(--color-brand)] rounded-lg text-sm font-extrabold text-[var(--color-text)]">
-        {String(value).padStart(pad ? 2 : 1, "0")}
-      </div>
-      <button
-        type="button"
-        onClick={() => onChange(value <= min ? max : value - 1)}
-        className="w-8 h-6 flex items-center justify-center text-[var(--color-brand)] hover:bg-blue-100 rounded-lg transition-all text-sm font-bold"
-      >▼</button>
-    </div>
+    <input
+      type="number"
+      min={min}
+      max={max}
+      value={String(value).padStart(pad ? 2 : 1, "0")}
+      onChange={(e) => {
+        let v = parseInt(e.target.value);
+        if (isNaN(v)) return;
+        if (v < min) v = min;
+        if (v > max) v = max;
+        onChange(v);
+      }}
+      className="w-10 h-9 text-center bg-white border-2 border-[var(--color-brand)] rounded-lg text-sm font-extrabold text-[var(--color-text)] outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30"
+    />
   );
 }
 
