@@ -30,13 +30,13 @@ function to24h(display, ampm) {
 function TimeInput({ value, onChange }) {
   const { display, ampm } = to12h(value);
   return (
-    <div className="flex items-center gap-1 mt-1.5">
+    <div className="flex items-center gap-1 mt-1.5 w-full">
       <input
         type="text"
         value={display}
         onChange={(e) => onChange(to24h(e.target.value, ampm))}
         placeholder="9:00"
-        className="w-14 px-1 py-2 rounded-lg bg-blue-50 border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm font-semibold text-center"
+        className="min-w-0 flex-1 px-1 py-2 rounded-lg bg-blue-50 border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm font-semibold text-center"
       />
       <div className="flex rounded-lg overflow-hidden border border-[var(--color-border)] flex-shrink-0">
         {["AM", "PM"].map((period) => (
@@ -108,18 +108,13 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
 
   const handleSaveAll = async () => {
     setShowUnsavedPrompt(false);
-    for (const day of unsavedDays) {
-      await handleSave(day);
-    }
+    for (const day of unsavedDays) await handleSave(day);
     onSaved?.();
     onClose();
   };
 
   const handleDone = () => {
-    if (unsavedDays.length > 0) {
-      setShowUnsavedPrompt(true);
-      return;
-    }
+    if (unsavedDays.length > 0) { setShowUnsavedPrompt(true); return; }
     onSaved?.();
     onClose();
   };
@@ -130,53 +125,51 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
       onClick={(e) => { if (e.target === e.currentTarget) handleDone(); }}
     >
       <div style={{ background: "#eff6ff", borderRadius: "24px", width: "100%", maxWidth: "520px", maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px rgba(0,0,0,0.25)", position: "relative", overflow: "hidden" }}>
-}
-          {showUnsavedPrompt && (
-            <div className="absolute inset-0 bg-blue-50/95 backdrop-blur-sm rounded-3xl z-10 flex flex-col items-center justify-center px-8 text-center">
-              <div className="text-5xl mb-4">⚠️</div>
-              <h3 className="text-lg font-extrabold text-[var(--color-text)] mb-2">Unsaved Changes</h3>
-              <p className="text-sm text-[var(--color-text-secondary)] mb-2">
-                You have unsaved changes for:
-              </p>
-              <div className="flex flex-wrap gap-2 justify-center mb-6">
-                {unsavedDays.map(d => (
-                  <span key={d} className="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-bold">
-                    {DAY_LABEL[d]}
-                  </span>
-                ))}
-              </div>
-              <div className="flex gap-3 w-full">
-                <button onClick={() => { setShowUnsavedPrompt(false); onSaved?.(); onClose(); }}
-                  className="flex-1 py-3 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] font-bold text-sm hover:bg-[var(--color-muted)] transition-all">
-                  Discard
-                </button>
-                <button onClick={handleSaveAll}
-                  className="flex-1 py-3 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-sm hover:bg-[var(--color-brand-dark)] transition-all">
-                  Save All
-                </button>
-              </div>
+
+        {/* Unsaved changes prompt */}
+        {showUnsavedPrompt && (
+          <div className="absolute inset-0 bg-blue-50/95 backdrop-blur-sm rounded-3xl z-10 flex flex-col items-center justify-center px-8 text-center">
+            <div className="text-5xl mb-4">⚠️</div>
+            <h3 className="text-lg font-extrabold text-[var(--color-text)] mb-2">Unsaved Changes</h3>
+            <p className="text-sm text-[var(--color-text-secondary)] mb-2">You have unsaved changes for:</p>
+            <div className="flex flex-wrap gap-2 justify-center mb-6">
+              {unsavedDays.map(d => (
+                <span key={d} className="px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full text-xs font-bold">
+                  {DAY_LABEL[d]}
+                </span>
+              ))}
             </div>
-          )}
+            <div className="flex gap-3 w-full">
+              <button onClick={() => { setShowUnsavedPrompt(false); onSaved?.(); onClose(); }}
+                className="flex-1 py-3 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] font-bold text-sm hover:bg-[var(--color-muted)] transition-all">
+                Discard
+              </button>
+              <button onClick={handleSaveAll}
+                className="flex-1 py-3 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-sm hover:bg-[var(--color-brand-dark)] transition-all">
+                Save All
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Sticky header */}
-        <div className="flex items-center justify-between px-4 sm:px-8 pt-7 pb-4 border-b border-[var(--color-border)] flex-shrink-0">
+        <div className="flex items-center justify-between px-5 pt-6 pb-4 border-b border-[var(--color-border)] flex-shrink-0">
           <div>
-            <h2 className="text-xl font-extrabold text-[var(--color-text)]"
-              style={{ fontFamily: "var(--font-display)" }}>
+            <h2 className="text-lg font-extrabold text-[var(--color-text)]" style={{ fontFamily: "var(--font-display)" }}>
               Set Working Hours
             </h2>
             <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
-              {serviceName ? `For: ${serviceName}` : "Customers see you as available during these hours"}
+              {serviceName ? `For: ${serviceName}` : "Set your availability for customers"}
             </p>
           </div>
           <button onClick={handleDone}
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[var(--color-muted)] text-[var(--color-text-secondary)] text-lg font-bold transition-all">
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-[var(--color-muted)] text-[var(--color-text-secondary)] text-lg font-bold transition-all flex-shrink-0">
             ✕
           </button>
         </div>
 
         {/* Scrollable content */}
-        <div className="overflow-y-auto px-4 sm:px-8 py-6 space-y-3 flex-1">
+        <div className="overflow-y-auto px-4 py-4 space-y-3 flex-1">
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
               <p className="text-red-600 text-sm">{error}</p>
@@ -189,41 +182,42 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
             const isActive = schedule[day].active;
 
             return (
-              <div key={day} className={`rounded-2xl border-2 p-4 transition-all ${isActive ? "border-[var(--color-brand)]/40 bg-blue-100/40" : "border-blue-100 bg-blue-50/50"}`}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+              <div key={day} className={`rounded-2xl border-2 p-3 transition-all ${isActive ? "border-[var(--color-brand)]/40 bg-blue-100/40" : "border-blue-100 bg-blue-50/50"}`}>
+                {/* Top row: toggle + day name + save button */}
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
                     <button
                       type="button"
                       onClick={() => handleChange(day, "active", !isActive)}
-                      className={`w-11 h-6 rounded-full transition-all relative flex-shrink-0 ${isActive ? "bg-[var(--color-brand)]" : "bg-gray-200"}`}
+                      className={`w-10 h-5 rounded-full transition-all relative flex-shrink-0 ${isActive ? "bg-[var(--color-brand)]" : "bg-gray-200"}`}
                     >
-                      <span className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow transition-all ${isActive ? "left-5" : "left-0.5"}`} />
+                      <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-all ${isActive ? "left-5" : "left-0.5"}`} />
                     </button>
-                    <span className="font-bold text-sm text-[var(--color-text)]">{DAY_LABEL[day]}</span>
-                    <span className={`text-xs font-semibold ${isActive ? "text-green-600" : "text-slate-400"}`}>
+                    <span className="font-bold text-sm text-[var(--color-text)] truncate">{DAY_LABEL[day]}</span>
+                    <span className={`text-[11px] font-semibold flex-shrink-0 ${isActive ? "text-green-600" : "text-slate-400"}`}>
                       {isActive ? "Open" : "Closed"}
                     </span>
                   </div>
-
                   <button
                     type="button"
                     onClick={() => handleSave(day)}
                     disabled={isSaving}
-                    className={`text-xs font-bold px-4 py-1.5 rounded-full transition-all min-w-[72px] text-center disabled:opacity-60
+                    className={`text-xs font-bold px-3 py-1.5 rounded-full transition-all flex-shrink-0 disabled:opacity-60
                       ${isSaved ? "bg-green-100 text-green-700 border-2 border-green-200" : "bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand-dark)]"}`}
                   >
-                    {isSaving ? "Saving..." : isSaved ? "✓ Saved" : "Save"}
+                    {isSaving ? "..." : isSaved ? "✓ Saved" : "Save"}
                   </button>
                 </div>
 
+                {/* From / To — each in its own column, full width */}
                 {isActive && (
-                  <div className="grid grid-cols-2 gap-2 mt-3">
+                  <div className="grid grid-cols-2 gap-3 mt-3">
                     <div>
-                      <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">From</label>
+                      <p className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">From</p>
                       <TimeInput value={schedule[day].startTime} onChange={(v) => handleChange(day, "startTime", v)} />
                     </div>
                     <div>
-                      <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">To</label>
+                      <p className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">To</p>
                       <TimeInput value={schedule[day].endTime} onChange={(v) => handleChange(day, "endTime", v)} />
                     </div>
                   </div>
@@ -234,7 +228,7 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
         </div>
 
         {/* Sticky footer */}
-        <div className="px-4 sm:px-8 py-5 border-t border-[var(--color-border)] flex-shrink-0">
+        <div className="px-4 py-4 border-t border-[var(--color-border)] flex-shrink-0">
           <button
             onClick={handleDone}
             className="w-full py-3 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-sm hover:bg-[var(--color-brand-dark)] transition-all"
