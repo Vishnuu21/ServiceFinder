@@ -1,11 +1,7 @@
 // src/App.jsx
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
-import {
-  getNearbyProviders,
-  searchProviders,
-  getServices,
-} from "./services/providerService";
+import { getNearbyProviders, searchProviders, getServices } from "./services/providerService";
 import { useAuth } from "./context/AuthContext";
 
 import Header from "./components/Header";
@@ -13,6 +9,7 @@ import SearchSection from "./components/SearchSection";
 import CategoryGrid from "./components/CategoryGrid";
 import ProviderList from "./components/ProviderList";
 import Sidebar from "./components/Sidebar";
+import LocationBar from "./components/LocationBar";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ReviewModal from "./components/ReviewModal";
@@ -28,9 +25,11 @@ function HomePage() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [providers, setProviders] = useState([]);
   const [error, setError] = useState(null);
-  const [coords, setCoords] = useState(null);  const [categories, setCategories] = useState([]);
+  const [coords, setCoords] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [locationGranted, setLocationGranted] = useState(false);
+  const [showLocationBar, setShowLocationBar] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [reviewProvider, setReviewProvider] = useState(null);
   const [bookingProvider, setBookingProvider] = useState(null);
@@ -55,8 +54,7 @@ function HomePage() {
   const loadProviders = async ({ lat, lon }) => {
     try {
       const data = await getNearbyProviders(lat, lon);
-      const transformed = transformProviders(data);
-      setProviders(transformed);
+      setProviders(transformProviders(data));
       setSelectedProvider(null);
       setError(null);
     } catch {
@@ -66,43 +64,64 @@ function HomePage() {
     }
   };
 
+  const applyCoords = (c) => {
+    setCoords(c);
+    loadProviders(c);
+  };
+
+  const fallbackToIP = () => {
+    fetch("https://ipapi.co/json/")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.latitude && d.longitude) {
+          applyCoords({ lat: d.latitude, lon: d.longitude });
+        } else {
+          setLoading(false);
+        }
+        setShowLocationBar(true); // always show bar on IP fallback so user can refine
+      })
+      .catch(() => { setShowLocationBar(true); setLoading(false); });
+  };
+
   useEffect(() => {
     getServices().then(setCategories).catch(() => {});
 
-    const applyCoords = (c) => {
-      setCoords(c);
-      loadProviders(c);
-    };
-
-    const fallbackToIP = () => {
-      fetch("https://ipapi.co/json/")
-        .then((r) => r.json())
-        .then((d) => {
-          if (d.latitude && d.longitude) applyCoords({ lat: d.latitude, lon: d.longitude });
-          else setLoading(false);
-        })
-        .catch(() => setLoading(false));
-    };
-
     if (!navigator.geolocation) { fallbackToIP(); return; }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        setLocationGranted(true);
-        applyCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
+        const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        if (pos.coords.accuracy <= 500) {
+          // good accuracy — mobile GPS, use directly
+          setLocationGranted(true);
+          setShowLocationBar(false);
+          applyCoords(c);
+        } else {
+          // poor accuracy — desktop, load with rough coords but show bar to refine
+          applyCoords(c);
+          setShowLocationBar(true);
+        }
       },
       () => fallbackToIP(),
       { timeout: 8000, maximumAge: 0, enableHighAccuracy: false }
     );
   }, []);
 
+  const handleLocationSelect = (c) => {
+    setCoords(c);
+    setShowLocationBar(false);
+    setLoading(true);
+    loadProviders(c);
+  };
+
   const handleSearch = async () => {
+    if (!coords) return;
     setLoading(true);
     try {
       const data = query.trim()
         ? await searchProviders(coords.lat, coords.lon, query)
         : await getNearbyProviders(coords.lat, coords.lon);
-      const transformed = transformProviders(data);
-      setProviders(transformed);
+      setProviders(transformProviders(data));
       setSelectedProvider(null);
       setActiveCategory(null);
       setError(null);
@@ -114,14 +133,14 @@ function HomePage() {
   };
 
   const handleCategorySelect = async (categoryName) => {
+    if (!coords) return;
     setActiveCategory(categoryName);
     setLoading(true);
     try {
       const data = categoryName
         ? await searchProviders(coords.lat, coords.lon, categoryName)
         : await getNearbyProviders(coords.lat, coords.lon);
-      const transformed = transformProviders(data);
-      setProviders(transformed);
+      setProviders(transformProviders(data));
       setSelectedProvider(null);
       setError(null);
     } catch {
@@ -134,7 +153,14 @@ function HomePage() {
   return (
     <div className="min-h-screen relative">
       <FloatingBackground />
-      <Header onProvidersUpdated={() => loadProviders(coords)} />
+      <Header onProvidersUpdated={() => coords && loadProviders(coords)} />
+
+      {/* Location bar — shown below header when location is inaccurate or IP-based */}
+      {showLocationBar && (
+        <div className="fixed top-16 left-0 right-0 z-40">
+          <LocationBar onLocationSelect={handleLocationSelect} />
+        </div>
+      )}
 
       {reviewProvider && (
         <ReviewModal
@@ -151,22 +177,13 @@ function HomePage() {
           onSuccess={() => {}}
         />
       )}
-      <main className="w-full px-6 pt-24 pb-0">
+
+      <main className={`w-full px-6 pb-0 ${showLocationBar ? "pt-32" : "pt-24"}`}>
         <div className="flex gap-6">
           <div className="flex-1 min-w-0">
-            <SearchSection
-              query={query}
-              setQuery={setQuery}
-              onSearch={handleSearch}
-            />
-            <CategoryGrid
-              activeCategory={activeCategory}
-              onSelect={handleCategorySelect}
-              categories={categories}
-            />
-            {error && (
-              <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-            )}
+            <SearchSection query={query} setQuery={setQuery} onSearch={handleSearch} />
+            <CategoryGrid activeCategory={activeCategory} onSelect={handleCategorySelect} categories={categories} />
+            {error && <p className="text-red-500 text-sm text-center mb-4">{error}</p>}
             <ProviderList
               providers={providers}
               loading={loading}
@@ -176,14 +193,8 @@ function HomePage() {
               onBook={user?.role === "CUSTOMER" ? setBookingProvider : null}
             />
           </div>
-
           <div className="hidden lg:block w-96 flex-shrink-0">
-            <Sidebar
-              providers={providers}
-              locationGranted={locationGranted}
-              coords={coords}
-              selectedProvider={selectedProvider}
-            />
+            <Sidebar providers={providers} locationGranted={locationGranted} coords={coords} selectedProvider={selectedProvider} />
           </div>
         </div>
       </main>
@@ -191,7 +202,6 @@ function HomePage() {
   );
 }
 
-// protected route — redirects to login if not logged in
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
   return user ? children : <Navigate to="/login" replace />;
@@ -208,15 +218,12 @@ export default function App() {
 
   return (
     <>
-      {/* WelcomeSplash disabled for presentation */}
       {showSplash && user && (
         <div style={{ position: "fixed", inset: 0, zIndex: 0, pointerEvents: "none", overflow: "hidden" }}>
           <HomePage />
         </div>
       )}
-      {showSplash && user && (
-        <WelcomeSplash user={user} onDone={handleSplashDone} />
-      )}
+      {showSplash && user && <WelcomeSplash user={user} onDone={handleSplashDone} />}
 
       {!showSplash && (
         <Routes>
