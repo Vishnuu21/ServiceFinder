@@ -5,7 +5,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getServices, getOrCreateService, registerProvider, getMyProviderServices } from "../services/providerService";
 import { useAuth } from "../context/AuthContext";
-import { USER_LOCATION, SHOW_MAP_ATTRIBUTION } from "../config/location";
+import { SHOW_MAP_ATTRIBUTION } from "../config/location";
 import { useScrollLock } from "../hooks/useScrollLock";
 
 const pinIcon = L.divIcon({
@@ -44,8 +44,8 @@ export default function AddProviderModal({ onClose, onSuccess }) {
   const [serviceId, setServiceId] = useState("");
   const [customService, setCustomService] = useState("");
   const [description, setDescription] = useState("");
-  const [latitude, setLatitude] = useState(String(USER_LOCATION.lat));
-  const [longitude, setLongitude] = useState(String(USER_LOCATION.lon));
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -54,8 +54,29 @@ export default function AddProviderModal({ onClose, onSuccess }) {
           setLatitude(String(pos.coords.latitude));
           setLongitude(String(pos.coords.longitude));
         },
-        () => {} // silently fall back to hardcoded USER_LOCATION
+        () => {
+          fetch("https://ipapi.co/json/")
+            .then(r => r.json())
+            .then(d => {
+              if (d.latitude && d.longitude) {
+                setLatitude(String(d.latitude));
+                setLongitude(String(d.longitude));
+              }
+            })
+            .catch(() => {});
+        },
+        { timeout: 8000, maximumAge: 0, enableHighAccuracy: false }
       );
+    } else {
+      fetch("https://ipapi.co/json/")
+        .then(r => r.json())
+        .then(d => {
+          if (d.latitude && d.longitude) {
+            setLatitude(String(d.latitude));
+            setLongitude(String(d.longitude));
+          }
+        })
+        .catch(() => {});
     }
   }, []);
   const [gender, setGender] = useState("");
@@ -223,7 +244,7 @@ export default function AddProviderModal({ onClose, onSuccess }) {
               <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 mb-2">Click on the map to pin your location, or fine-tune the coordinates below.</p>
               <div className="rounded-xl overflow-hidden border border-gray-300 mb-3 relative" style={{ height: "200px" }}>
                 <MapContainer
-                  center={[parseFloat(latitude) || USER_LOCATION.lat, parseFloat(longitude) || USER_LOCATION.lon]}
+                  center={[parseFloat(latitude) || 20.5937, parseFloat(longitude) || 78.9629]}
                   zoom={15}
                   style={{ height: "100%", width: "100%" }}
                   scrollWheelZoom={true}
@@ -231,7 +252,7 @@ export default function AddProviderModal({ onClose, onSuccess }) {
                 >
                   <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                   <MapClickHandler onMapClick={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); }} />
-                  <MapRecenter lat={parseFloat(latitude) || USER_LOCATION.lat} lng={parseFloat(longitude) || USER_LOCATION.lon} />
+                  <MapRecenter lat={parseFloat(latitude) || 20.5937} lng={parseFloat(longitude) || 78.9629} />
                   {parseFloat(latitude) && parseFloat(longitude) && (
                     <Marker position={[parseFloat(latitude), parseFloat(longitude)]} icon={pinIcon} />
                   )}
@@ -278,7 +299,7 @@ export default function AddProviderModal({ onClose, onSuccess }) {
       {mapFullscreen && (
         <div style={{ position: "fixed", inset: 0, zIndex: 10000 }}>
           <MapContainer
-            center={[parseFloat(latitude) || USER_LOCATION.lat, parseFloat(longitude) || USER_LOCATION.lon]}
+            center={[parseFloat(latitude) || 20.5937, parseFloat(longitude) || 78.9629]}
             zoom={15}
             style={{ height: "100%", width: "100%" }}
             scrollWheelZoom={true}

@@ -7,7 +7,6 @@ import {
   getServices,
 } from "./services/providerService";
 import { useAuth } from "./context/AuthContext";
-import { USER_LOCATION } from "./config/location";
 
 import Header from "./components/Header";
 import SearchSection from "./components/SearchSection";
@@ -29,8 +28,7 @@ function HomePage() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [providers, setProviders] = useState([]);
   const [error, setError] = useState(null);
-  const [coords, setCoords] = useState(null);
-  const [categories, setCategories] = useState([]);
+  const [coords, setCoords] = useState(null);  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [locationGranted, setLocationGranted] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState(null);
@@ -80,20 +78,13 @@ function HomePage() {
       fetch("https://ipapi.co/json/")
         .then((r) => r.json())
         .then((d) => {
-          if (d.latitude && d.longitude) {
-            applyCoords({ lat: d.latitude, lon: d.longitude });
-          } else {
-            applyCoords(USER_LOCATION);
-          }
+          if (d.latitude && d.longitude) applyCoords({ lat: d.latitude, lon: d.longitude });
+          else setLoading(false);
         })
-        .catch(() => applyCoords(USER_LOCATION));
+        .catch(() => setLoading(false));
     };
 
-    if (!navigator.geolocation) {
-      fallbackToIP();
-      return;
-    }
-
+    if (!navigator.geolocation) { fallbackToIP(); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setLocationGranted(true);

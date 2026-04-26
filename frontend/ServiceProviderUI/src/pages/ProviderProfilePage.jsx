@@ -11,8 +11,6 @@ import BookingModal from "../components/BookingModal";
 import ReviewModal from "../components/ReviewModal";
 import FloatingBackground from "../components/FloatingBackground";
 
-import { USER_LOCATION } from "../config/location";
-
 const providerIcon = L.divIcon({
   className: "",
   html: `
@@ -62,7 +60,7 @@ export default function ProviderProfilePage() {
   const [fav, setFav] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
-  const [userCoords, setUserCoords] = useState(USER_LOCATION);
+  const [userCoords, setUserCoords] = useState(null);
 
   const haversine = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -78,14 +76,20 @@ export default function ProviderProfilePage() {
     : null;
 
   useEffect(() => {
+    const ipFallback = () => {
+      fetch("https://ipapi.co/json/")
+        .then(r => r.json())
+        .then(d => { if (d.latitude && d.longitude) setUserCoords({ lat: d.latitude, lon: d.longitude }); })
+        .catch(() => {});
+    };
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => setUserCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
-        () => setUserCoords(USER_LOCATION),
-        { timeout: 8000, maximumAge: 60000 }
+        () => ipFallback(),
+        { timeout: 8000, maximumAge: 0, enableHighAccuracy: false }
       );
     } else {
-      setUserCoords(USER_LOCATION);
+      ipFallback();
     }
   }, []);
 

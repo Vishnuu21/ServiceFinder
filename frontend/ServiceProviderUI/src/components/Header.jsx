@@ -6,7 +6,6 @@ import AddProviderModal from "./AddProviderModal";
 import WorkingHoursModal from "./WorkingHoursModal";
 import { getNearbyProviders, getMyProviderServices } from "../services/providerService";
 import { uploadProfilePicture } from "../services/authService";
-import { USER_LOCATION } from "../config/location";
 import ImageCropModal from "./ImageCropModal";
 
 export default function Header({ onProvidersUpdated }) {
