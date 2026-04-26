@@ -128,9 +128,9 @@ export async function deleteReview(reviewId) {
   if (!res.ok) throw new Error("Failed to delete review");
 }
 
-export async function getMyFavourites() {
+export async function getMyFavourites(lat, lon) {
   const token = localStorage.getItem("token");
-  const res = await fetch(FAVOURITES_URL, {
+  const res = await fetch(`${FAVOURITES_URL}?lat=${lat}&lon=${lon}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.json();

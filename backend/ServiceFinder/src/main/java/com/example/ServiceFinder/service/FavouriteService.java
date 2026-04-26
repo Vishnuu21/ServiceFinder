@@ -50,10 +50,10 @@ public class FavouriteService {
         favouriteRepo.deleteByUserIdAndProviderId(user.getId(), providerId);
     }
 
-    public List<ProviderResponse> getMyFavourites(String email) {
+    public List<ProviderResponse> getMyFavourites(String email, double lat, double lon) {
         User user = getUser(email);
         return favouriteRepo.findByUserId(user.getId()).stream()
-                .map(f -> toResponse(f.getProvider()))
+                .map(f -> toResponse(f.getProvider(), lat, lon))
                 .toList();
     }
 
@@ -94,7 +94,7 @@ public class FavouriteService {
                 .orElse(false);
     }
 
-    private ProviderResponse toResponse(ServiceProvider p) {
+    private ProviderResponse toResponse(ServiceProvider p, double lat, double lon) {
         Double avg = reviewRepo.findAverageRatingByProviderId(p.getId());
         int total = reviewRepo.findByProviderId(p.getId()).size();
         double rating = avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0;
@@ -104,12 +104,13 @@ public class FavouriteService {
                 .findFirst()
                 .map(User::getProfilePicture)
                 .orElse(null);
+        double dist = distance(lat, lon, p.getLatitude(), p.getLongitude());
         return new ProviderResponse(
                 p.getId(),
                 p.getName(),
                 p.getPhone(),
                 p.getService().getName(),
-                0.0,
+                dist,
                 p.getLatitude(),
                 p.getLongitude(),
                 rating,
@@ -119,5 +120,15 @@ public class FavouriteService {
                 p.getDescription(),
                 profilePicture
         );
+    }
+
+    private double distance(double lat1, double lon1, double lat2, double lon2) {
+        double R = 6371;
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLon = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 }

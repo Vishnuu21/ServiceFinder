@@ -260,12 +260,16 @@ function CustomerFavList() {
 
   const fetchFavourites = async () => {
     try {
-      const data = await getMyFavourites();
+      const pos = await new Promise((resolve, reject) =>
+        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
+      );
+      const { latitude, longitude } = pos.coords;
+      const data = await getMyFavourites(latitude, longitude);
       setFavourites(Array.isArray(data) ? data.map(p => ({
         id: p.id,
         name: p.name,
         phone: p.phone,
-        distance: p.distance > 0 ? p.distance.toFixed(1) + " km" : "N/A",
+        distance: p.distance > 0 ? p.distance.toFixed(1) + " km" : null,
         rating: p.averageRating || 0,
         totalReviews: p.totalReviews || 0,
         skills: [p.serviceName],
@@ -340,7 +344,7 @@ function CustomerFavList() {
                       {p.available ? "Available" : "Unavailable"}
                     </span>
                   </div>
-                  <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{p.skills[0]} · {p.distance}</p>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{p.skills[0]}{p.distance ? ` · ${p.distance}` : ""}</p>
                   {p.rating > 0 && (
                     <p className="text-xs text-amber-600 font-semibold mt-0.5">⭐ {p.rating} ({p.totalReviews})</p>
                   )}

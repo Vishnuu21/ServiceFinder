@@ -38,9 +38,11 @@ public class FavouriteController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAll(Authentication auth) {
+    public ResponseEntity<?> getAll(@RequestParam double lat,
+                                    @RequestParam double lon,
+                                    Authentication auth) {
         try {
-            return ResponseEntity.ok(favouriteService.getMyFavourites(auth.getName()));
+            return ResponseEntity.ok(favouriteService.getMyFavourites(auth.getName(), lat, lon));
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
