@@ -72,6 +72,7 @@ function HomePage() {
     getServices().then(setCategories).catch(() => {});
 
     if (!navigator.geolocation) {
+      alert("Geolocation not supported");
       setCoords(USER_LOCATION);
       loadProviders(USER_LOCATION);
       return;
@@ -79,12 +80,13 @@ function HomePage() {
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        alert("GPS SUCCESS: " + c.lat + ", " + c.lon);
         setCoords(c);
         setLocationGranted(true);
         loadProviders(c);
       },
-      () => {
-        // GPS denied or failed — fall back to hardcoded
+      (err) => {
+        alert("GPS FAILED: code=" + err.code + " msg=" + err.message);
         setCoords(USER_LOCATION);
         loadProviders(USER_LOCATION);
       },
