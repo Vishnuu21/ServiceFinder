@@ -74,7 +74,7 @@ public class FavouriteService {
         User user = getUser(email);
         return providerRepo.findAll().stream()
                 .filter(p -> p.getName().equalsIgnoreCase(user.getName()))
-                .map(this::toResponse)
+                .map(p -> toResponse(p, 0.0, 0.0))
                 .toList();
     }
 
