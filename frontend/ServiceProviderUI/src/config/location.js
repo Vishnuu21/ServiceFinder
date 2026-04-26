@@ -1,5 +1,5 @@
 // src/config/location.js
-// ✏️ Change ONLY these values before presentation
+
 // set false to hide the Leaflet/OpenStreetMap watermark
 export const SHOW_MAP_ATTRIBUTION = false;
 
