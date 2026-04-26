@@ -29,7 +29,7 @@ function HomePage() {
   const [activeCategory, setActiveCategory] = useState(null);
   const [providers, setProviders] = useState([]);
   const [error, setError] = useState(null);
-  const [coords, setCoords] = useState(USER_LOCATION);
+  const [coords, setCoords] = useState(null);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [locationGranted, setLocationGranted] = useState(false);
@@ -70,9 +70,12 @@ function HomePage() {
 
   useEffect(() => {
     getServices().then(setCategories).catch(() => {});
-    loadProviders(USER_LOCATION);
 
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setCoords(USER_LOCATION);
+      loadProviders(USER_LOCATION);
+      return;
+    }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
@@ -80,7 +83,11 @@ function HomePage() {
         setLocationGranted(true);
         loadProviders(c);
       },
-      () => {},
+      () => {
+        // GPS denied or failed — fall back to hardcoded
+        setCoords(USER_LOCATION);
+        loadProviders(USER_LOCATION);
+      },
       { timeout: 8000, maximumAge: 0 }
     );
   }, []);

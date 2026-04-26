@@ -1,6 +1,6 @@
 // src/components/AddProviderModal.jsx
 import { useState, useEffect } from "react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getServices, getOrCreateService, registerProvider, getMyProviderServices } from "../services/providerService";
@@ -21,7 +21,7 @@ function MapClickHandler({ onMapClick }) {
 }
 
 function MapRecenter({ lat, lng }) {
-  const map = useMapEvents({});
+  const map = useMap();
   useEffect(() => { map.setView([lat, lng]); }, [lat, lng]);
   return null;
 }
