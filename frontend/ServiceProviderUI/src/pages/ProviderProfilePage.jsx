@@ -77,6 +77,14 @@ export default function ProviderProfilePage() {
 
   useEffect(() => {
     const ipFallback = () => {
+      const saved = localStorage.getItem("savedLocation");
+      if (saved) {
+        try {
+          const { lat, lon } = JSON.parse(saved);
+          setUserCoords({ lat, lon });
+          return;
+        } catch {}
+      }
       fetch("https://ipapi.co/json/")
         .then(r => r.json())
         .then(d => { if (d.latitude && d.longitude) setUserCoords({ lat: d.latitude, lon: d.longitude }); })
