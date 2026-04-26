@@ -104,12 +104,18 @@ public class BookingService {
     }
 
     private BookingResponse toResponse(Booking b) {
+        String providerPic = userRepo.findAll().stream()
+                .filter(u -> u.getName().equalsIgnoreCase(b.getProvider().getName()))
+                .findFirst()
+                .map(User::getProfilePicture)
+                .orElse(null);
         return new BookingResponse(
                 b.getId(),
                 b.getCustomer().getName(),
                 b.getProvider().getName(),
                 b.getProvider().getService().getName(),
                 b.getProvider().getPhone(),
+                providerPic,
                 b.getBookingTime(),
                 b.getNote(),
                 b.getStatus().name(),

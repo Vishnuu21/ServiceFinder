@@ -265,12 +265,12 @@ function CustomerFavList() {
         id: p.id,
         name: p.name,
         phone: p.phone,
-        distance: p.distance?.toFixed(1) + " km",
+        distance: p.distance > 0 ? p.distance.toFixed(1) + " km" : "N/A",
         rating: p.averageRating || 0,
         totalReviews: p.totalReviews || 0,
         skills: [p.serviceName],
         available: p.available,
-        image: null,
+        image: p.profilePicture || null,
         lat: p.latitude,
         lon: p.longitude,
       })) : []);
@@ -327,8 +327,11 @@ function CustomerFavList() {
           <div className="space-y-4">
             {favourites.map(p => (
               <div key={p.id} className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-5 border border-blue-100/80 shadow-sm flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-lg flex-shrink-0">
-                  {p.name?.charAt(0).toUpperCase()}
+                <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-lg flex-shrink-0">
+                  {p.image
+                    ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                    : p.name?.charAt(0).toUpperCase()
+                  }
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">

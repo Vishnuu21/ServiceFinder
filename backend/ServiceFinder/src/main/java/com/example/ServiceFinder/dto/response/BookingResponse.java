@@ -12,6 +12,7 @@ public class BookingResponse {
     private String providerName;
     private String serviceName;
     private String providerPhone;
+    private String providerProfilePicture;
     private LocalDateTime bookingTime;
     private String note;
     private String status;

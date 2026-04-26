@@ -93,8 +93,11 @@ export default function MyBookingsPage() {
                 <div className="flex-1">
                   {/* Provider / Customer name */}
                   <div className="flex items-center gap-2 mb-1">
-                    <div className="w-8 h-8 rounded-lg bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-sm flex-shrink-0">
-                      {(user?.role === "PROVIDER" ? b.customerName : b.providerName)?.charAt(0).toUpperCase()}
+                    <div className="w-8 h-8 rounded-lg overflow-hidden bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-sm flex-shrink-0">
+                      {user?.role === "CUSTOMER" && b.providerProfilePicture
+                        ? <img src={b.providerProfilePicture} alt={b.providerName} className="w-full h-full object-cover" />
+                        : (user?.role === "PROVIDER" ? b.customerName : b.providerName)?.charAt(0).toUpperCase()
+                      }
                     </div>
                     <div>
                       <p className="font-bold text-sm text-[var(--color-text)]">
