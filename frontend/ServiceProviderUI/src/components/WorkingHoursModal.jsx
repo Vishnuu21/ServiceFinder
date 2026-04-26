@@ -30,13 +30,13 @@ function to24h(display, ampm) {
 function TimeInput({ value, onChange }) {
   const { display, ampm } = to12h(value);
   return (
-    <div className="flex gap-1.5 mt-1.5 items-center">
+    <div className="flex items-center gap-1 mt-1.5">
       <input
         type="text"
         value={display}
         onChange={(e) => onChange(to24h(e.target.value, ampm))}
         placeholder="9:00"
-        className="w-16 px-2 py-2 rounded-lg bg-blue-50 border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm font-semibold text-center"
+        className="w-14 px-1 py-2 rounded-lg bg-blue-50 border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm font-semibold text-center"
       />
       <div className="flex rounded-lg overflow-hidden border border-[var(--color-border)] flex-shrink-0">
         {["AM", "PM"].map((period) => (
@@ -44,7 +44,7 @@ function TimeInput({ value, onChange }) {
             key={period}
             type="button"
             onClick={() => onChange(to24h(display, period))}
-            className={`px-2 py-2 text-xs font-bold transition-all
+            className={`px-1.5 py-2 text-[11px] font-bold transition-all
               ${ampm === period
                 ? "bg-[var(--color-brand)] text-white"
                 : "bg-blue-50 text-[var(--color-text-secondary)] hover:bg-[var(--color-muted)]"
@@ -130,8 +130,7 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
       onClick={(e) => { if (e.target === e.currentTarget) handleDone(); }}
     >
       <div style={{ background: "#eff6ff", borderRadius: "24px", width: "100%", maxWidth: "520px", maxHeight: "90vh", display: "flex", flexDirection: "column", boxShadow: "0 25px 50px rgba(0,0,0,0.25)", position: "relative", overflow: "hidden" }}>
-
-        {/* Unsaved changes prompt */}
+}
           {showUnsavedPrompt && (
             <div className="absolute inset-0 bg-blue-50/95 backdrop-blur-sm rounded-3xl z-10 flex flex-col items-center justify-center px-8 text-center">
               <div className="text-5xl mb-4">⚠️</div>
@@ -160,7 +159,7 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
           )}
 
         {/* Sticky header */}
-        <div className="flex items-center justify-between px-8 pt-7 pb-4 border-b border-[var(--color-border)] flex-shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-8 pt-7 pb-4 border-b border-[var(--color-border)] flex-shrink-0">
           <div>
             <h2 className="text-xl font-extrabold text-[var(--color-text)]"
               style={{ fontFamily: "var(--font-display)" }}>
@@ -177,7 +176,7 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
         </div>
 
         {/* Scrollable content */}
-        <div className="overflow-y-auto px-8 py-6 space-y-3 flex-1">
+        <div className="overflow-y-auto px-4 sm:px-8 py-6 space-y-3 flex-1">
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3">
               <p className="text-red-600 text-sm">{error}</p>
@@ -218,12 +217,11 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
                 </div>
 
                 {isActive && (
-                  <div className="flex items-center gap-2 mt-3">
+                  <div className="grid grid-cols-2 gap-2 mt-3">
                     <div>
                       <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">From</label>
                       <TimeInput value={schedule[day].startTime} onChange={(v) => handleChange(day, "startTime", v)} />
                     </div>
-                    <span className="text-[var(--color-text-secondary)] font-bold mt-4">→</span>
                     <div>
                       <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">To</label>
                       <TimeInput value={schedule[day].endTime} onChange={(v) => handleChange(day, "endTime", v)} />
@@ -236,7 +234,7 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
         </div>
 
         {/* Sticky footer */}
-        <div className="px-8 py-5 border-t border-[var(--color-border)] flex-shrink-0">
+        <div className="px-4 sm:px-8 py-5 border-t border-[var(--color-border)] flex-shrink-0">
           <button
             onClick={handleDone}
             className="w-full py-3 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-sm hover:bg-[var(--color-brand-dark)] transition-all"
