@@ -71,23 +71,36 @@ function HomePage() {
   useEffect(() => {
     getServices().then(setCategories).catch(() => {});
 
+    const applyCoords = (c) => {
+      setCoords(c);
+      loadProviders(c);
+    };
+
+    const fallbackToIP = () => {
+      fetch("https://ipapi.co/json/")
+        .then((r) => r.json())
+        .then((d) => {
+          if (d.latitude && d.longitude) {
+            applyCoords({ lat: d.latitude, lon: d.longitude });
+          } else {
+            applyCoords(USER_LOCATION);
+          }
+        })
+        .catch(() => applyCoords(USER_LOCATION));
+    };
+
     if (!navigator.geolocation) {
-      setCoords(USER_LOCATION);
-      loadProviders(USER_LOCATION);
+      fallbackToIP();
       return;
     }
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
-        const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-        setCoords(c);
         setLocationGranted(true);
-        loadProviders(c);
+        applyCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude });
       },
-      () => {
-        setCoords(USER_LOCATION);
-        loadProviders(USER_LOCATION);
-      },
-      { timeout: 30000, maximumAge: 0, enableHighAccuracy: false }
+      () => fallbackToIP(),
+      { timeout: 8000, maximumAge: 0, enableHighAccuracy: false }
     );
   }, []);
 
