@@ -1,5 +1,5 @@
 // src/services/authService.js
-const BASE_URL = "http://localhost:8080/auth";
+import { AUTH_URL } from "../config/api";
 
 async function parseError(res) {
   const text = await res.text();
@@ -12,7 +12,7 @@ async function parseError(res) {
 }
 
 export async function register(name, email, password, role) {
-  const res = await fetch(`${BASE_URL}/register`, {
+  const res = await fetch(`${AUTH_URL}/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ name, email, password, role }),
@@ -22,7 +22,7 @@ export async function register(name, email, password, role) {
 }
 
 export async function login(email, password) {
-  const res = await fetch(`${BASE_URL}/login`, {
+  const res = await fetch(`${AUTH_URL}/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
@@ -33,7 +33,7 @@ export async function login(email, password) {
 
 export async function uploadProfilePicture(base64Image) {
   const token = localStorage.getItem("token");
-  const res = await fetch(`${BASE_URL}/profile-picture`, {
+  const res = await fetch(`${AUTH_URL}/profile-picture`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify({ profilePicture: base64Image }),

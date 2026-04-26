@@ -1,9 +1,30 @@
 // src/components/AddProviderModal.jsx
 import { useState, useEffect } from "react";
+import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import { getServices, getOrCreateService, registerProvider, getMyProviderServices } from "../services/providerService";
 import { useAuth } from "../context/AuthContext";
-import { USER_LOCATION } from "../config/location";
+import { USER_LOCATION, SHOW_MAP_ATTRIBUTION } from "../config/location";
 import { useScrollLock } from "../hooks/useScrollLock";
+
+const pinIcon = L.divIcon({
+  className: "",
+  html: `<div style="display:flex;flex-direction:column;align-items:center;"><div style="width:18px;height:18px;background:#0058be;border:3px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,88,190,0.5);"></div></div>`,
+  iconSize: [18, 22],
+  iconAnchor: [9, 20],
+});
+
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({ click: (e) => onMapClick(e.latlng.lat, e.latlng.lng) });
+  return null;
+}
+
+function MapRecenter({ lat, lng }) {
+  const map = useMapEvents({});
+  useEffect(() => { map.setView([lat, lng]); }, [lat, lng]);
+  return null;
+}
 
 const inputCls = "w-full mt-1.5 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm";
 
@@ -25,7 +46,20 @@ export default function AddProviderModal({ onClose, onSuccess }) {
   const [description, setDescription] = useState("");
   const [latitude, setLatitude] = useState(String(USER_LOCATION.lat));
   const [longitude, setLongitude] = useState(String(USER_LOCATION.lon));
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          setLatitude(String(pos.coords.latitude));
+          setLongitude(String(pos.coords.longitude));
+        },
+        () => {} // silently fall back to hardcoded USER_LOCATION
+      );
+    }
+  }, []);
   const [gender, setGender] = useState("");
+  const [mapFullscreen, setMapFullscreen] = useState(false);
 
   useEffect(() => {
     getServices().then(setServices).catch(() => {});
@@ -186,7 +220,29 @@ export default function AddProviderModal({ onClose, onSuccess }) {
 
             <div>
               <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Your Location</label>
-              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 mb-2">Pre-filled with your location. Change if needed.</p>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 mb-2">Click on the map to pin your location, or fine-tune the coordinates below.</p>
+              <div className="rounded-xl overflow-hidden border border-gray-300 mb-3 relative" style={{ height: "200px" }}>
+                <MapContainer
+                  center={[parseFloat(latitude) || USER_LOCATION.lat, parseFloat(longitude) || USER_LOCATION.lon]}
+                  zoom={15}
+                  style={{ height: "100%", width: "100%" }}
+                  scrollWheelZoom={true}
+                  attributionControl={SHOW_MAP_ATTRIBUTION}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <MapClickHandler onMapClick={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); }} />
+                  <MapRecenter lat={parseFloat(latitude) || USER_LOCATION.lat} lng={parseFloat(longitude) || USER_LOCATION.lon} />
+                  {parseFloat(latitude) && parseFloat(longitude) && (
+                    <Marker position={[parseFloat(latitude), parseFloat(longitude)]} icon={pinIcon} />
+                  )}
+                </MapContainer>
+                <button
+                  type="button"
+                  onClick={() => setMapFullscreen(true)}
+                  style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", fontSize: "14px" }}
+                  title="Fullscreen"
+                >⛶</button>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-[var(--color-text-secondary)]">Latitude</label>
@@ -217,6 +273,35 @@ export default function AddProviderModal({ onClose, onSuccess }) {
           </button>
         </div>
       </div>
+
+      {/* Fullscreen map overlay */}
+      {mapFullscreen && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 10000 }}>
+          <MapContainer
+            center={[parseFloat(latitude) || USER_LOCATION.lat, parseFloat(longitude) || USER_LOCATION.lon]}
+            zoom={15}
+            style={{ height: "100%", width: "100%" }}
+            scrollWheelZoom={true}
+            attributionControl={SHOW_MAP_ATTRIBUTION}
+          >
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <MapClickHandler onMapClick={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); }} />
+            {parseFloat(latitude) && parseFloat(longitude) && (
+              <Marker position={[parseFloat(latitude), parseFloat(longitude)]} icon={pinIcon} />
+            )}
+          </MapContainer>
+          <button
+            type="button"
+            onClick={() => setMapFullscreen(false)}
+            style={{ position: "absolute", top: 16, right: 16, zIndex: 10001, background: "white", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: "13px", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}
+          >
+            ✕ Exit Fullscreen
+          </button>
+          <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", zIndex: 10001, background: "white", borderRadius: "10px", padding: "8px 16px", fontSize: "12px", fontWeight: 600, color: "#424754", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", whiteSpace: "nowrap" }}>
+            📍 {parseFloat(latitude).toFixed(6)}, {parseFloat(longitude).toFixed(6)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

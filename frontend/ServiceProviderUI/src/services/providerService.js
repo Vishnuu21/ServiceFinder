@@ -1,6 +1,4 @@
-const BASE_URL = "http://localhost:8080/providers";
-const SERVICES_URL = "http://localhost:8080/services";
-const REVIEWS_URL = "http://localhost:8080/reviews";
+import { PROVIDERS_URL, SERVICES_URL, REVIEWS_URL, WORKING_HOURS_URL, BOOKINGS_URL, FAVOURITES_URL } from "../config/api";
 
 export async function getServices() {
   const res = await fetch(SERVICES_URL);
@@ -8,12 +6,12 @@ export async function getServices() {
 }
 
 export async function getNearbyProviders(lat, lon) {
-  const res = await fetch(`${BASE_URL}/nearby?lat=${lat}&lon=${lon}`);
+  const res = await fetch(`${PROVIDERS_URL}/nearby?lat=${lat}&lon=${lon}`);
   return res.json();
 }
 
 export async function searchProviders(lat, lon, serviceName) {
-  const res = await fetch(`${BASE_URL}/search?lat=${lat}&lon=${lon}&serviceName=${serviceName}`);
+  const res = await fetch(`${PROVIDERS_URL}/search?lat=${lat}&lon=${lon}&serviceName=${serviceName}`);
   return res.json();
 }
 
@@ -27,7 +25,7 @@ export async function getOrCreateService(name) {
 }
 
 export async function registerProvider(providerData, token) {
-  const res = await fetch(BASE_URL, {
+  const res = await fetch(PROVIDERS_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -72,8 +70,6 @@ export async function editReview(reviewId, rating, comment) {
   return data;
 }
 
-const WORKING_HOURS_URL = "http://localhost:8080/working-hours";
-
 export async function getWorkingHours(providerId) {
   const res = await fetch(`${WORKING_HOURS_URL}/provider/${providerId}`);
   return res.json();
@@ -90,8 +86,6 @@ export async function saveWorkingHours(day, startTime, endTime, active, provider
   if (!res.ok) throw new Error(data.message || "Failed to save");
   return data;
 }
-
-const BOOKINGS_URL = "http://localhost:8080/bookings";
 
 export async function createBooking(providerId, bookingTime, note) {
   const token = localStorage.getItem("token");
@@ -133,8 +127,6 @@ export async function deleteReview(reviewId) {
   });
   if (!res.ok) throw new Error("Failed to delete review");
 }
-
-const FAVOURITES_URL = "http://localhost:8080/favourites";
 
 export async function getMyFavourites() {
   const token = localStorage.getItem("token");
@@ -181,7 +173,7 @@ export async function getMyFavouriteCount() {
 }
 
 export async function getProviderById(id) {
-  const res = await fetch(`http://localhost:8080/providers/${id}`);
+  const res = await fetch(`${PROVIDERS_URL}/${id}`);
   return res.json();
 }
 
@@ -195,7 +187,7 @@ export async function getMyProviderServices() {
 
 export async function updateProviderService(providerId, data) {
   const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:8080/providers/${providerId}`, {
+  const res = await fetch(`${PROVIDERS_URL}/${providerId}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
     body: JSON.stringify(data),
@@ -207,7 +199,7 @@ export async function updateProviderService(providerId, data) {
 
 export async function deleteProviderService(providerId) {
   const token = localStorage.getItem("token");
-  const res = await fetch(`http://localhost:8080/providers/${providerId}`, {
+  const res = await fetch(`${PROVIDERS_URL}/${providerId}`, {
     method: "DELETE",
     headers: { Authorization: `Bearer ${token}` },
   });
