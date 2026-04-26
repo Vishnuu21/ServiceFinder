@@ -96,14 +96,10 @@ public class FavouriteService {
 
     private ProviderResponse toResponse(ServiceProvider p, double lat, double lon) {
         Double avg = reviewRepo.findAverageRatingByProviderId(p.getId());
-        int total = reviewRepo.findByProviderId(p.getId()).size();
+        int total = reviewRepo.countByProviderId(p.getId());
         double rating = avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0;
         int favCount = favouriteRepo.countByProviderId(p.getId());
-        String profilePicture = userRepo.findAll().stream()
-                .filter(u -> u.getName().equalsIgnoreCase(p.getName()))
-                .findFirst()
-                .map(User::getProfilePicture)
-                .orElse(null);
+        String profilePicture = userRepo.findProfilePictureByName(p.getName()).orElse(null);
         double dist = distance(lat, lon, p.getLatitude(), p.getLongitude());
         return new ProviderResponse(
                 p.getId(),

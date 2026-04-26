@@ -84,16 +84,12 @@ public class ServiceProviderService {
     }
 
     private String getProfilePicture(String providerName) {
-        return userRepo.findAll().stream()
-                .filter(u -> u.getName().equalsIgnoreCase(providerName))
-                .findFirst()
-                .map(User::getProfilePicture)
-                .orElse(null);
+        return userRepo.findProfilePictureByName(providerName).orElse(null);
     }
 
     private ProviderResponse toResponse(ServiceProvider p, double lat, double lon) {
         Double avg = reviewRepo.findAverageRatingByProviderId(p.getId());
-        int total = reviewRepo.findByProviderId(p.getId()).size();
+        int total = reviewRepo.countByProviderId(p.getId());
         double rating = avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0;
         boolean available = isAvailableNow(p.getId());
         int favCount = favouriteRepo.countByProviderId(p.getId());
