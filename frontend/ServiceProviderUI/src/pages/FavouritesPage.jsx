@@ -267,7 +267,14 @@ function CustomerFavList() {
         );
         latitude = pos.coords.latitude;
         longitude = pos.coords.longitude;
-      } catch {}
+      } catch {
+        const saved = localStorage.getItem("savedLocation");
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          latitude = parsed.lat;
+          longitude = parsed.lon;
+        }
+      }
       const data = await getMyFavourites(latitude, longitude);
       setFavourites(Array.isArray(data) ? data.map(p => ({
         id: p.id,

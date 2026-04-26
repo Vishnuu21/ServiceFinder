@@ -31,6 +31,7 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [locationGranted, setLocationGranted] = useState(false);
   const [showLocationBar, setShowLocationBar] = useState(false);
+  const [savedLocationLabel, setSavedLocationLabel] = useState(null);
   const [activeTab, setActiveTab] = useState("find");
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [reviewProvider, setReviewProvider] = useState(null);
@@ -80,16 +81,13 @@ function HomePage() {
         } else {
           setLoading(false);
         }
-        setShowLocationBar(true); // always show bar on IP fallback so user can refine
+        setShowLocationBar(true);
       })
       .catch(() => { setShowLocationBar(true); setLoading(false); });
   };
 
-  useEffect(() => {
-    getServices().then(setCategories).catch(() => {});
-
-    if (!navigator.geolocation) { fallbackToIP(); return; }
-
+  const tryGeolocation = (onFail) => {
+    if (!navigator.geolocation) { onFail(); return; }
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
@@ -99,18 +97,38 @@ function HomePage() {
           applyCoords(c);
         } else {
           applyCoords(c);
-          setShowLocationBar(true);
         }
       },
-      () => fallbackToIP(),
+      onFail,
       { timeout: 15000, maximumAge: 0, enableHighAccuracy: true }
     );
+  };
+
+  useEffect(() => {
+    getServices().then(setCategories).catch(() => {});
+
+    // Check for a previously saved manual location
+    const saved = localStorage.getItem("savedLocation");
+    if (saved) {
+      try {
+        const { lat, lon, label } = JSON.parse(saved);
+        setSavedLocationLabel(label || null);
+        applyCoords({ lat, lon });
+        return;
+      } catch {}
+    }
+
+    tryGeolocation(fallbackToIP);
   }, []);
 
   const handleLocationSelect = (c) => {
     setCoords(c);
     setShowLocationBar(false);
     setLoading(true);
+    const saved = localStorage.getItem("savedLocation");
+    if (saved) {
+      try { setSavedLocationLabel(JSON.parse(saved).label || null); } catch {}
+    }
     loadProviders(c);
   };
 
@@ -155,10 +173,23 @@ function HomePage() {
       <FloatingBackground />
       <Header onProvidersUpdated={() => coords && loadProviders(coords)} />
 
-      {/* Location bar — shown below header when location is inaccurate or IP-based */}
+      {/* Location overlay — shown when location can't be detected */}
       {showLocationBar && (
-        <div className="fixed top-16 left-0 right-0 z-40">
-          <LocationBar onLocationSelect={handleLocationSelect} />
+        <LocationBar
+          onLocationSelect={handleLocationSelect}
+          onDismiss={savedLocationLabel ? () => setShowLocationBar(false) : null}
+          savedLabel={savedLocationLabel}
+        />
+      )}
+
+      {/* Change location chip — shown when using a saved manual location */}
+      {!showLocationBar && savedLocationLabel && (
+        <div className="fixed top-16 left-0 right-0 z-40 flex justify-center py-2 pointer-events-none">
+          <button
+            onClick={() => setShowLocationBar(true)}
+            className="pointer-events-auto flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm hover:bg-amber-100 transition-all">
+            📍 {savedLocationLabel} · <span className="underline">Change</span>
+          </button>
         </div>
       )}
 
@@ -178,7 +209,7 @@ function HomePage() {
         />
       )}
 
-      <main className={`w-full px-6 pb-28 md:pb-6 ${showLocationBar ? "pt-32" : "pt-24"}`}>
+      <main className="w-full px-6 pb-28 md:pb-6 pt-24">
         <div className="flex gap-6">
           <div className="flex-1 min-w-0">
             <SearchSection query={query} setQuery={setQuery} onSearch={handleSearch} />
