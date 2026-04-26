@@ -37,7 +37,8 @@ export default function AddProviderModal({ onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [myServices, setMyServices] = useState([]);
-  const [dupWarning, setDupWarning] = useState(null); // {serviceName} if duplicate nearby
+  const [dupWarning, setDupWarning] = useState(null);
+  const [similarSuggestion, setSimilarSuggestion] = useState(null);
 
   const [name, setName] = useState(user?.name || "");
   const [phone, setPhone] = useState("");
@@ -108,6 +109,33 @@ export default function AddProviderModal({ onClose, onSuccess }) {
     const dLon = (lon2 - lon1) * Math.PI / 180;
     const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2;
     return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  };
+
+  // Levenshtein edit distance
+  const levenshtein = (a, b) => {
+    const dp = Array.from({ length: a.length + 1 }, (_, i) =>
+      Array.from({ length: b.length + 1 }, (_, j) => i === 0 ? j : j === 0 ? i : 0)
+    );
+    for (let i = 1; i <= a.length; i++)
+      for (let j = 1; j <= b.length; j++)
+        dp[i][j] = a[i-1] === b[j-1] ? dp[i-1][j-1] : 1 + Math.min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1]);
+    return dp[a.length][b.length];
+  };
+
+  const handleCustomServiceChange = (val) => {
+    const formatted = val.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    setCustomService(formatted);
+    setSimilarSuggestion(null);
+    const lower = val.trim().toLowerCase();
+    if (lower.length < 3) return;
+    const match = services.find(s => {
+      const sLower = s.name.toLowerCase();
+      if (sLower === lower) return false; // exact match, no need to suggest
+      const dist = levenshtein(lower, sLower);
+      const threshold = Math.floor(sLower.length * 0.4); // 40% of existing name length
+      return dist <= threshold;
+    });
+    if (match) setSimilarSuggestion(match);
   };
 
   const doSubmit = async () => {
@@ -227,8 +255,22 @@ export default function AddProviderModal({ onClose, onSuccess }) {
                 </button>
               </div>
               {useCustomService ? (
-                <input type="text" value={customService} onChange={(e) => setCustomService(e.target.value.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" "))} placeholder="Enter service name"
-                  className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm" />
+                <div>
+                  <input type="text" value={customService} onChange={(e) => handleCustomServiceChange(e.target.value)} placeholder="Enter service name"
+                    className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm" />
+                  {similarSuggestion && (
+                    <div className="mt-2 px-4 py-3 bg-amber-50 border border-amber-200 rounded-xl flex items-center justify-between gap-3">
+                      <p className="text-xs text-amber-800">
+                        💡 Did you mean <span className="font-bold">{similarSuggestion.name}</span>? It already exists.
+                      </p>
+                      <button type="button"
+                        onClick={() => { setUseCustomService(false); setServiceId(String(similarSuggestion.id)); setSimilarSuggestion(null); setCustomService(""); }}
+                        className="text-xs font-bold text-[var(--color-brand)] whitespace-nowrap hover:underline flex-shrink-0">
+                        Use it →
+                      </button>
+                    </div>
+                  )}
+                </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
                   {services.map((s) => (
