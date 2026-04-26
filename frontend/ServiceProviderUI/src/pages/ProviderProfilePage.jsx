@@ -86,7 +86,7 @@ export default function ProviderProfilePage() {
       navigator.geolocation.getCurrentPosition(
         (pos) => setUserCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
         () => ipFallback(),
-        { timeout: 8000, maximumAge: 0, enableHighAccuracy: false }
+        { timeout: 15000, maximumAge: 0, enableHighAccuracy: true }
       );
     } else {
       ipFallback();
@@ -157,7 +157,7 @@ export default function ProviderProfilePage() {
         <ReviewModal provider={provider} onClose={() => setReviewOpen(false)} onReviewChange={() => getProviderById(id)} />
       )}
 
-      <div className="max-w-3xl mx-auto px-6 pt-24 pb-16">
+      <div className="max-w-3xl mx-auto px-6 pt-24 pb-28 md:pb-16">
 
         {/* Back button */}
         <button onClick={() => navigate(-1)}

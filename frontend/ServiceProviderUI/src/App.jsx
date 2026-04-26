@@ -94,18 +94,16 @@ function HomePage() {
       (pos) => {
         const c = { lat: pos.coords.latitude, lon: pos.coords.longitude };
         if (pos.coords.accuracy <= 500) {
-          // good accuracy — mobile GPS, use directly
           setLocationGranted(true);
           setShowLocationBar(false);
           applyCoords(c);
         } else {
-          // poor accuracy — desktop, load with rough coords but show bar to refine
           applyCoords(c);
           setShowLocationBar(true);
         }
       },
       () => fallbackToIP(),
-      { timeout: 8000, maximumAge: 0, enableHighAccuracy: false }
+      { timeout: 15000, maximumAge: 0, enableHighAccuracy: true }
     );
   }, []);
 

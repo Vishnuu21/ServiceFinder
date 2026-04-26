@@ -1,5 +1,5 @@
 // src/components/BottomNav.jsx
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const navItems = [
@@ -43,7 +43,13 @@ const navItems = [
 
 export default function BottomNav({ activeTab, onTabChange }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
+
+  // derive active tab from URL so back button and direct navigation work
+  const currentTab = location.pathname === "/bookings" ? "bookings"
+    : location.pathname === "/favourites" ? "favorites"
+    : "find";
 
   const visibleItems = navItems.filter(item => item.id !== "profile").map(item =>
     item.id === "favorites" && user?.role === "PROVIDER"
@@ -68,7 +74,7 @@ export default function BottomNav({ activeTab, onTabChange }) {
         "
       >
         {visibleItems.map((item) => {
-          const isActive = activeTab === item.id;
+          const isActive = currentTab === item.id;
           return (
             <button
               key={item.id}

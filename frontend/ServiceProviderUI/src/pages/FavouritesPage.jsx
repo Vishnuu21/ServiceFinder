@@ -161,7 +161,7 @@ function ProviderFavStats() {
   );
 
   return (
-    <div className="max-w-3xl mx-auto px-6 pt-24 pb-10">
+    <div className="max-w-3xl mx-auto px-6 pt-24 pb-28 md:pb-10">
       {confirmTarget && (
         <ConfirmDialog
           serviceName={confirmTarget.serviceName}
@@ -207,35 +207,38 @@ function ProviderFavStats() {
         <div className="space-y-3">
           <p className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider mb-2">Breakdown by service</p>
           {services.map(s => (
-            <div key={s.id} className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-5 border border-blue-100/80 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-lg flex-shrink-0">
-                🔧
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-bold text-[var(--color-text)]">{s.serviceName}</p>
-                <div className="flex items-center gap-3 mt-1">
-                  {s.averageRating > 0 && (
-                    <span className="text-xs text-amber-600 font-semibold">⭐ {s.averageRating} ({s.totalReviews})</span>
-                  )}
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.available ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-400"}`}>
-                    {s.available ? "Available" : "Unavailable"}
-                  </span>
+            <div key={s.id} className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-5 border border-blue-100/80 shadow-sm">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-lg flex-shrink-0">
+                  🔧
                 </div>
-              </div>
-              <div className="flex items-center gap-3 flex-shrink-0">
-                <div className="flex items-center gap-1.5 bg-red-50 px-3 py-2 rounded-xl">
+                <div className="flex-1 min-w-0">
+                  <p className="font-bold text-[var(--color-text)] truncate">{s.serviceName}</p>
+                  <div className="flex items-center gap-3 mt-1 flex-wrap">
+                    {s.averageRating > 0 && (
+                      <span className="text-xs text-amber-600 font-semibold">⭐ {s.averageRating} ({s.totalReviews})</span>
+                    )}
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.available ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-400"}`}>
+                      {s.available ? "Available" : "Unavailable"}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 bg-red-50 px-3 py-2 rounded-xl flex-shrink-0">
                   <span className="text-base">❤️</span>
                   <span className="text-lg font-extrabold text-red-500">{s.favouriteCount}</span>
                 </div>
+              </div>
+              {/* Actions row below on all screens */}
+              <div className="flex gap-2 mt-4">
                 <button
                   onClick={() => setEditTarget(s)}
-                  className="px-3 py-2 rounded-xl text-xs font-bold text-[var(--color-brand)] border-2 border-[var(--color-brand-light)] hover:bg-blue-100 transition-all">
+                  className="flex-1 py-2 rounded-xl text-xs font-bold text-[var(--color-brand)] border-2 border-[var(--color-brand-light)] hover:bg-blue-100 transition-all">
                   Edit
                 </button>
                 <button
                   onClick={() => setConfirmTarget({ id: s.id, serviceName: s.serviceName })}
                   disabled={deleting === s.id}
-                  className="px-3 py-2 rounded-xl text-xs font-bold text-red-500 border-2 border-red-200 hover:bg-red-50 transition-all disabled:opacity-50">
+                  className="flex-1 py-2 rounded-xl text-xs font-bold text-red-500 border-2 border-red-200 hover:bg-red-50 transition-all disabled:opacity-50">
                   {deleting === s.id ? "Deleting..." : "Delete"}
                 </button>
               </div>
@@ -302,7 +305,7 @@ function CustomerFavList() {
         <ReviewModal provider={reviewProvider} onClose={() => setReviewProvider(null)} onReviewChange={fetchFavourites} />
       )}
 
-      <div className="max-w-3xl mx-auto px-6 pt-24 pb-10">
+      <div className="max-w-3xl mx-auto px-6 pt-24 pb-28 md:pb-10">
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-[var(--color-text)]" style={{ fontFamily: "var(--font-display)" }}>
             My Favourites

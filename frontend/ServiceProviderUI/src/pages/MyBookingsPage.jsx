@@ -64,7 +64,7 @@ export default function MyBookingsPage() {
     <div className="min-h-screen relative">
       <FloatingBackground />
       <Header />
-      <div className="max-w-3xl mx-auto px-6 pt-24 pb-10">
+      <div className="max-w-3xl mx-auto px-6 pt-24 pb-28 md:pb-10">
       <div className="mb-8">
         <h1 className="text-3xl font-extrabold text-[var(--color-text)]"
           style={{ fontFamily: "var(--font-display)" }}>

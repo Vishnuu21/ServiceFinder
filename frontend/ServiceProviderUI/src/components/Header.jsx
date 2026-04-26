@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import AddProviderModal from "./AddProviderModal";
 import WorkingHoursModal from "./WorkingHoursModal";
-import { getNearbyProviders, getMyProviderServices } from "../services/providerService";
+import { getMyProviderServices } from "../services/providerService";
 import { uploadProfilePicture } from "../services/authService";
 import ImageCropModal from "./ImageCropModal";
 
@@ -111,8 +111,8 @@ export default function Header({ onProvidersUpdated }) {
                           setShowServicePicker(true);
                         }
                       }}
-                      className="hidden sm:block text-xs font-bold text-[var(--color-brand)] border-2 border-[var(--color-brand)] hover:bg-blue-50 px-4 py-2 rounded-full transition-all">
-                      🕐 Set Hours
+                      className="text-xs font-bold text-[var(--color-brand)] border-2 border-[var(--color-brand)] hover:bg-blue-50 px-4 py-2 rounded-full transition-all">
+                      🕐 <span className="hidden sm:inline">Set Hours</span>
                     </button>
                   )}
                 </>
