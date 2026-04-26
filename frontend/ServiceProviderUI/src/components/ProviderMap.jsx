@@ -1,6 +1,6 @@
 // src/components/ProviderMap.jsx
 import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
 import { USER_LOCATION, SHOW_MAP_ATTRIBUTION } from "../config/location";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -83,6 +83,14 @@ function MapController({ selectedProvider, markerRefs }) {
   return null;
 }
 
+function CoordsRecenter({ coords }) {
+  const map = useMapEvents({});
+  useEffect(() => {
+    if (coords?.lat && coords?.lon) map.setView([coords.lat, coords.lon], 14);
+  }, [coords?.lat, coords?.lon]);
+  return null;
+}
+
 export default function ProviderMap({ providers, coords, selectedProvider }) {
   const markerRefs = useRef({});
 
@@ -106,6 +114,7 @@ export default function ProviderMap({ providers, coords, selectedProvider }) {
         />
 
         <MapController selectedProvider={selectedProvider} markerRefs={markerRefs} />
+        <CoordsRecenter coords={coords} />
 
         {/* user location marker */}
         {displayCoords && (
