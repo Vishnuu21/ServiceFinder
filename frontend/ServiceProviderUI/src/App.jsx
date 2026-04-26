@@ -10,6 +10,7 @@ import CategoryGrid from "./components/CategoryGrid";
 import ProviderList from "./components/ProviderList";
 import Sidebar from "./components/Sidebar";
 import LocationBar from "./components/LocationBar";
+import BottomNav from "./components/BottomNav";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import ReviewModal from "./components/ReviewModal";
@@ -30,6 +31,7 @@ function HomePage() {
   const [loading, setLoading] = useState(true);
   const [locationGranted, setLocationGranted] = useState(false);
   const [showLocationBar, setShowLocationBar] = useState(false);
+  const [activeTab, setActiveTab] = useState("find");
   const [selectedProvider, setSelectedProvider] = useState(null);
   const [reviewProvider, setReviewProvider] = useState(null);
   const [bookingProvider, setBookingProvider] = useState(null);
@@ -178,7 +180,7 @@ function HomePage() {
         />
       )}
 
-      <main className={`w-full px-6 pb-0 ${showLocationBar ? "pt-32" : "pt-24"}`}>
+      <main className={`w-full px-6 pb-28 md:pb-6 ${showLocationBar ? "pt-32" : "pt-24"}`}>
         <div className="flex gap-6">
           <div className="flex-1 min-w-0">
             <SearchSection query={query} setQuery={setQuery} onSearch={handleSearch} />
@@ -198,6 +200,11 @@ function HomePage() {
           </div>
         </div>
       </main>
+
+      {/* Bottom nav — mobile only */}
+      <div className="md:hidden">
+        <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
+      </div>
     </div>
   );
 }

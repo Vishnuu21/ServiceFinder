@@ -75,6 +75,7 @@ export default function Header({ onProvidersUpdated }) {
             </h1>
           </div>
 
+          {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[var(--color-text-secondary)]">
             <Link to="/" className="hover:text-[var(--color-brand)] transition-colors">Find Services</Link>
             <Link to="/bookings" className="hover:text-[var(--color-brand)] transition-colors">My Bookings</Link>
@@ -86,14 +87,18 @@ export default function Header({ onProvidersUpdated }) {
           </nav>
 
           {user && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {/* Provider actions — desktop only */}
               {user.role === "PROVIDER" && (
                 <>
-                  <button
-                    onClick={() => setShowModal(true)}
-                    className="text-xs font-bold text-white bg-[var(--color-brand)] hover:bg-[var(--color-brand-dark)] px-4 py-2 rounded-full transition-all"
-                  >
+                  <button onClick={() => setShowModal(true)}
+                    className="hidden sm:block text-xs font-bold text-white bg-[var(--color-brand)] hover:bg-[var(--color-brand-dark)] px-4 py-2 rounded-full transition-all">
                     + Add Service
+                  </button>
+                  {/* Mobile: icon only */}
+                  <button onClick={() => setShowModal(true)}
+                    className="sm:hidden w-9 h-9 flex items-center justify-center rounded-full bg-[var(--color-brand)] text-white text-lg font-bold">
+                    +
                   </button>
                   {myProviders.length > 0 && (
                     <button
@@ -106,8 +111,7 @@ export default function Header({ onProvidersUpdated }) {
                           setShowServicePicker(true);
                         }
                       }}
-                      className="text-xs font-bold text-[var(--color-brand)] border-2 border-[var(--color-brand)] hover:bg-blue-50 px-4 py-2 rounded-full transition-all"
-                    >
+                      className="hidden sm:block text-xs font-bold text-[var(--color-brand)] border-2 border-[var(--color-brand)] hover:bg-blue-50 px-4 py-2 rounded-full transition-all">
                       🕐 Set Hours
                     </button>
                   )}
@@ -131,10 +135,8 @@ export default function Header({ onProvidersUpdated }) {
                   </div>
                 )}
               </button>
-              <button
-                onClick={handleLogout}
-                className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-full transition-all"
-              >
+              <button onClick={handleLogout}
+                className="text-xs font-bold text-red-500 hover:bg-red-50 px-3 py-1.5 rounded-full transition-all hidden sm:block">
                 Logout
               </button>
             </div>

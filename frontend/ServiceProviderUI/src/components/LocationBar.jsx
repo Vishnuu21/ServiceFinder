@@ -36,7 +36,7 @@ export default function LocationBar({ onLocationSelect }) {
   return (
     <div style={{ background: "#fffbeb", borderBottom: "1px solid #fde68a" }} className="w-full px-6 py-3 flex items-center gap-3">
       <span className="text-lg flex-shrink-0">📍</span>
-      <p className="text-xs font-semibold text-amber-700 flex-shrink-0 hidden sm:block">Couldn't detect location accurately —</p>
+      <p className="text-xs font-semibold text-amber-700 flex-shrink-0 hidden sm:block">Couldn't detect location —</p>
       <div className="relative flex-1">
         <input
           type="text"
