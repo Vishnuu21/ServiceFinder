@@ -19,7 +19,7 @@ public class ServiceService {
     }
 
     public ServiceEntity getOrCreate(String name) {
-        return repo.findByName(name)
+        return repo.findByNameIgnoreCase(name)
                 .orElseGet(() -> repo.save(new ServiceEntity(null, name)));
     }
 
