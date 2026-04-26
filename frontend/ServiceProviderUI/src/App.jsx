@@ -81,7 +81,7 @@ function HomePage() {
         loadProviders(c);
       },
       () => {},
-      { timeout: 8000, maximumAge: 60000 }
+      { timeout: 8000, maximumAge: 0 }
     );
   }, []);
 
