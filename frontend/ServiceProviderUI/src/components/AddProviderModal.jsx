@@ -48,6 +48,15 @@ export default function AddProviderModal({ onClose, onSuccess }) {
   const [longitude, setLongitude] = useState("");
 
   useEffect(() => {
+    const saved = localStorage.getItem("savedLocation");
+    if (saved) {
+      try {
+        const { lat, lon } = JSON.parse(saved);
+        setLatitude(String(lat));
+        setLongitude(String(lon));
+        return;
+      } catch {}
+    }
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -65,7 +74,7 @@ export default function AddProviderModal({ onClose, onSuccess }) {
             })
             .catch(() => {});
         },
-        { timeout: 8000, maximumAge: 0, enableHighAccuracy: false }
+        { timeout: 5000, maximumAge: 0, enableHighAccuracy: false }
       );
     } else {
       fetch("https://ipapi.co/json/")
