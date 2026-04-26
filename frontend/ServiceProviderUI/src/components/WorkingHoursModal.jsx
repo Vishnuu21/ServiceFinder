@@ -26,19 +26,30 @@ function to24h(hour, minute, ampm) {
 }
 
 function SpinBox({ value, min, max, pad, onChange }) {
+  const [draft, setDraft] = useState(String(value).padStart(pad ? 2 : 1, "0"));
+  const [focused, setFocused] = useState(false);
+
+  useEffect(() => {
+    if (!focused) setDraft(String(value).padStart(pad ? 2 : 1, "0"));
+  }, [value, focused]);
+
+  const handleBlur = () => {
+    setFocused(false);
+    let v = parseInt(draft);
+    if (isNaN(v) || v < min) v = min;
+    if (v > max) v = max;
+    onChange(v);
+    setDraft(String(v).padStart(pad ? 2 : 1, "0"));
+  };
+
   return (
     <input
-      type="number"
-      min={min}
-      max={max}
-      value={String(value).padStart(pad ? 2 : 1, "0")}
-      onChange={(e) => {
-        let v = parseInt(e.target.value);
-        if (isNaN(v)) return;
-        if (v < min) v = min;
-        if (v > max) v = max;
-        onChange(v);
-      }}
+      type="text"
+      inputMode="numeric"
+      value={draft}
+      onFocus={(e) => { setFocused(true); e.target.select(); }}
+      onChange={(e) => setDraft(e.target.value.replace(/\D/g, "").slice(0, 2))}
+      onBlur={handleBlur}
       className="w-10 h-9 text-center bg-white border-2 border-[var(--color-brand)] rounded-lg text-sm font-extrabold text-[var(--color-text)] outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30"
     />
   );
