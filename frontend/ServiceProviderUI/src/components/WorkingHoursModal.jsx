@@ -11,46 +11,58 @@ const DAY_LABEL = {
 const DEFAULT = { startTime: "09:00", endTime: "18:00", active: false };
 
 function to12h(time24) {
-  if (!time24) return { display: "9:00", ampm: "AM" };
+  if (!time24) return { hour: 9, minute: 0, ampm: "AM" };
   const [h, m] = time24.split(":").map(Number);
   const ampm = h < 12 ? "AM" : "PM";
   const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
-  return { display: `${hour}:${String(m).padStart(2, "0")}`, ampm };
+  return { hour, minute: m, ampm };
 }
 
-function to24h(display, ampm) {
-  const [hStr, mStr] = (display || "12:00").split(":");
-  let h = parseInt(hStr) || 0;
-  const m = parseInt(mStr) || 0;
+function to24h(hour, minute, ampm) {
+  let h = hour;
   if (ampm === "AM" && h === 12) h = 0;
   if (ampm === "PM" && h !== 12) h += 12;
-  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  return `${String(h).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+}
+
+function SpinBox({ value, min, max, pad, onChange }) {
+  return (
+    <div className="flex flex-col items-center">
+      <button
+        type="button"
+        onClick={() => onChange(value >= max ? min : value + 1)}
+        className="w-8 h-6 flex items-center justify-center text-[var(--color-brand)] hover:bg-blue-100 rounded-lg transition-all text-sm font-bold"
+      >▲</button>
+      <div className="w-10 h-9 flex items-center justify-center bg-white border-2 border-[var(--color-brand)] rounded-lg text-sm font-extrabold text-[var(--color-text)]">
+        {String(value).padStart(pad ? 2 : 1, "0")}
+      </div>
+      <button
+        type="button"
+        onClick={() => onChange(value <= min ? max : value - 1)}
+        className="w-8 h-6 flex items-center justify-center text-[var(--color-brand)] hover:bg-blue-100 rounded-lg transition-all text-sm font-bold"
+      >▼</button>
+    </div>
+  );
 }
 
 function TimeInput({ value, onChange }) {
-  const { display, ampm } = to12h(value);
+  const { hour, minute, ampm } = to12h(value);
+
   return (
-    <div className="flex items-center gap-1 mt-1.5 w-full">
-      <input
-        type="text"
-        value={display}
-        onChange={(e) => onChange(to24h(e.target.value, ampm))}
-        placeholder="9:00"
-        className="min-w-0 flex-1 px-1 py-2 rounded-lg bg-blue-50 border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:border-[var(--color-brand)] transition-all text-sm font-semibold text-center"
-      />
-      <div className="flex rounded-lg overflow-hidden border border-[var(--color-border)] flex-shrink-0">
-        {["AM", "PM"].map((period) => (
+    <div className="flex items-center gap-1.5 mt-2">
+      <SpinBox value={hour} min={1} max={12} pad={false} onChange={(h) => onChange(to24h(h, minute, ampm))} />
+      <span className="font-extrabold text-[var(--color-text-secondary)] text-sm mb-0.5">:</span>
+      <SpinBox value={minute} min={0} max={59} pad={true} onChange={(m) => onChange(to24h(hour, m, ampm))} />
+      <div className="flex flex-col gap-1 ml-1">
+        {["AM", "PM"].map((p) => (
           <button
-            key={period}
+            key={p}
             type="button"
-            onClick={() => onChange(to24h(display, period))}
-            className={`px-1.5 py-2 text-[11px] font-bold transition-all
-              ${ampm === period
-                ? "bg-[var(--color-brand)] text-white"
-                : "bg-blue-50 text-[var(--color-text-secondary)] hover:bg-[var(--color-muted)]"
-              }`}
+            onClick={() => onChange(to24h(hour, minute, p))}
+            className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all
+              ${ampm === p ? "bg-[var(--color-brand)] text-white" : "bg-blue-50 text-[var(--color-text-secondary)] hover:bg-blue-100"}`}
           >
-            {period}
+            {p}
           </button>
         ))}
       </div>
@@ -183,7 +195,7 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
 
             return (
               <div key={day} className={`rounded-2xl border-2 p-3 transition-all ${isActive ? "border-[var(--color-brand)]/40 bg-blue-100/40" : "border-blue-100 bg-blue-50/50"}`}>
-                {/* Top row: toggle + day name + save button */}
+                {/* Toggle row */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <button
@@ -209,9 +221,9 @@ export default function WorkingHoursModal({ providerId, serviceName, onClose, on
                   </button>
                 </div>
 
-                {/* From / To — each in its own column, full width */}
+                {/* From / To spinners */}
                 {isActive && (
-                  <div className="grid grid-cols-2 gap-3 mt-3">
+                  <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-blue-200/60">
                     <div>
                       <p className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">From</p>
                       <TimeInput value={schedule[day].startTime} onChange={(v) => handleChange(day, "startTime", v)} />
