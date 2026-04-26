@@ -212,6 +212,11 @@ function ProtectedRoute({ children }) {
   return user ? children : <Navigate to="/login" replace />;
 }
 
+function GuestRoute({ children }) {
+  const { user } = useAuth();
+  return user ? <Navigate to="/" replace /> : children;
+}
+
 export default function App() {
   const { user, showSplash, setShowSplash } = useAuth();
   const navigate = useNavigate();
@@ -232,8 +237,8 @@ export default function App() {
 
       {!showSplash && (
         <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+          <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
           <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route path="/bookings" element={<ProtectedRoute><MyBookingsPage /></ProtectedRoute>} />
           <Route path="/favourites" element={<ProtectedRoute><FavouritesPage /></ProtectedRoute>} />

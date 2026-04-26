@@ -260,10 +260,14 @@ function CustomerFavList() {
 
   const fetchFavourites = async () => {
     try {
-      const pos = await new Promise((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
-      );
-      const { latitude, longitude } = pos.coords;
+      let latitude = 0, longitude = 0;
+      try {
+        const pos = await new Promise((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
+        );
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      } catch {}
       const data = await getMyFavourites(latitude, longitude);
       setFavourites(Array.isArray(data) ? data.map(p => ({
         id: p.id,
@@ -330,36 +334,38 @@ function CustomerFavList() {
         ) : (
           <div className="space-y-4">
             {favourites.map(p => (
-              <div key={p.id} className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-5 border border-blue-100/80 shadow-sm flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-lg flex-shrink-0">
-                  {p.image
-                    ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
-                    : p.name?.charAt(0).toUpperCase()
-                  }
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-2">
-                    <p className="font-bold text-[var(--color-text)]">{p.name}</p>
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${p.available ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-400"}`}>
-                      {p.available ? "Available" : "Unavailable"}
-                    </span>
+              <div key={p.id} className="bg-blue-50/70 backdrop-blur-sm rounded-2xl p-5 border border-blue-100/80 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 rounded-xl overflow-hidden bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-lg flex-shrink-0">
+                    {p.image
+                      ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
+                      : p.name?.charAt(0).toUpperCase()
+                    }
                   </div>
-                  <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{p.skills[0]}{p.distance ? ` · ${p.distance}` : ""}</p>
-                  {p.rating > 0 && (
-                    <p className="text-xs text-amber-600 font-semibold mt-0.5">⭐ {p.rating} ({p.totalReviews})</p>
-                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="font-bold text-[var(--color-text)]">{p.name}</p>
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex-shrink-0 ${p.available ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-400"}`}>
+                        {p.available ? "Available" : "Unavailable"}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{p.skills[0]}{p.distance ? ` · ${p.distance}` : ""}</p>
+                    {p.rating > 0 && (
+                      <p className="text-xs text-amber-600 font-semibold mt-0.5">⭐ {p.rating} ({p.totalReviews})</p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 mt-3">
                   <button onClick={() => setReviewProvider(p)}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-muted)] transition-all">
+                    className="flex-1 py-1.5 rounded-xl text-xs font-bold border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-muted)] transition-all">
                     Reviews
                   </button>
                   <button onClick={() => setBookingProvider(p)}
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand-dark)] transition-all">
+                    className="flex-1 py-1.5 rounded-xl text-xs font-bold bg-[var(--color-brand)] text-white hover:bg-[var(--color-brand-dark)] transition-all">
                     Book
                   </button>
                   <button onClick={() => handleRemove(p.id)} title="Remove from favourites"
-                    className="hover:scale-110 transition-all">
+                    className="hover:scale-110 transition-all flex-shrink-0">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-red-500">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                     </svg>

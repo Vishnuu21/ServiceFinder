@@ -21,7 +21,7 @@ export default function LoginPage() {
     try {
       const data = await login(email, password);
       saveUser(data);
-      if (!SHOW_WELCOME_SPLASH) navigate("/");
+      if (!SHOW_WELCOME_SPLASH) navigate("/", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {

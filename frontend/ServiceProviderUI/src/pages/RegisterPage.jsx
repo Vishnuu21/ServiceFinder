@@ -22,7 +22,7 @@ export default function RegisterPage() {
     try {
       const data = await register(form.name, form.email, form.password, form.role);
       saveUser(data, true);
-      if (!SHOW_WELCOME_SPLASH) navigate("/");
+      if (!SHOW_WELCOME_SPLASH) navigate("/", { replace: true });
     } catch (err) {
       setError(err.message);
     } finally {
