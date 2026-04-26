@@ -76,15 +76,16 @@ export default function ProviderProfilePage() {
     : null;
 
   useEffect(() => {
+    // Check saved location first — instant, no waiting
+    const saved = localStorage.getItem("savedLocation");
+    if (saved) {
+      try {
+        const { lat, lon } = JSON.parse(saved);
+        setUserCoords({ lat, lon });
+        return;
+      } catch {}
+    }
     const ipFallback = () => {
-      const saved = localStorage.getItem("savedLocation");
-      if (saved) {
-        try {
-          const { lat, lon } = JSON.parse(saved);
-          setUserCoords({ lat, lon });
-          return;
-        } catch {}
-      }
       fetch("https://ipapi.co/json/")
         .then(r => r.json())
         .then(d => { if (d.latitude && d.longitude) setUserCoords({ lat: d.latitude, lon: d.longitude }); })
@@ -94,7 +95,7 @@ export default function ProviderProfilePage() {
       navigator.geolocation.getCurrentPosition(
         (pos) => setUserCoords({ lat: pos.coords.latitude, lon: pos.coords.longitude }),
         () => ipFallback(),
-        { timeout: 15000, maximumAge: 0, enableHighAccuracy: true }
+        { timeout: 5000, maximumAge: 60000, enableHighAccuracy: false }
       );
     } else {
       ipFallback();

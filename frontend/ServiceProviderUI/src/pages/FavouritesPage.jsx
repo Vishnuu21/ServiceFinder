@@ -261,19 +261,21 @@ function CustomerFavList() {
   const fetchFavourites = async () => {
     try {
       let latitude = 0, longitude = 0;
-      try {
-        const pos = await new Promise((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 8000 })
-        );
-        latitude = pos.coords.latitude;
-        longitude = pos.coords.longitude;
-      } catch {
-        const saved = localStorage.getItem("savedLocation");
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          latitude = parsed.lat;
-          longitude = parsed.lon;
-        }
+      const saved = localStorage.getItem("savedLocation");
+      if (saved) {
+        try {
+          const { lat, lon } = JSON.parse(saved);
+          latitude = lat;
+          longitude = lon;
+        } catch {}
+      } else {
+        try {
+          const pos = await new Promise((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 })
+          );
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+        } catch {}
       }
       const data = await getMyFavourites(latitude, longitude);
       setFavourites(Array.isArray(data) ? data.map(p => ({
