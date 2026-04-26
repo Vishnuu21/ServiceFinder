@@ -10,6 +10,7 @@ import Header from "../components/Header";
 import BookingModal from "../components/BookingModal";
 import ReviewModal from "../components/ReviewModal";
 import FloatingBackground from "../components/FloatingBackground";
+import { SHOW_MAP_ATTRIBUTION } from "../config/location";
 
 const providerIcon = L.divIcon({
   className: "",
@@ -268,7 +269,7 @@ export default function ProviderProfilePage() {
               <p className="font-bold text-sm text-[var(--color-text)]">📍 Location</p>
             </div>
             <div style={{ height: "calc(100vh - 520px)", minHeight: "250px" }}>
-              <MapContainer center={[provider.lat, provider.lon]} zoom={13} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true}>
+              <MapContainer center={[provider.lat, provider.lon]} zoom={13} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true} attributionControl={SHOW_MAP_ATTRIBUTION}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <FitAndFly providerLat={provider.lat} providerLon={provider.lon} userLat={userCoords?.lat} userLon={userCoords?.lon} />
                 {/* Provider marker */}
