@@ -1,11 +1,15 @@
 // src/pages/FavouritesPage.jsx
 import { useState, useEffect } from "react";
 import { getMyFavourites, removeFavourite, getMyFavouriteCount, getMyProviderServices, deleteProviderService, updateProviderService } from "../services/providerService";
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import Header from "../components/Header";
 import BookingModal from "../components/BookingModal";
 import ReviewModal from "../components/ReviewModal";
 import FloatingBackground from "../components/FloatingBackground";
 import { useAuth } from "../context/AuthContext";
+import { SHOW_MAP_ATTRIBUTION } from "../config/location";
 
 export default function FavouritesPage() {
   const { user } = useAuth();
@@ -17,6 +21,24 @@ export default function FavouritesPage() {
       {user?.role === "PROVIDER" ? <ProviderFavStats /> : <CustomerFavList />}
     </div>
   );
+}
+
+const pinIcon = L.divIcon({
+  className: "",
+  html: `<div style="display:flex;flex-direction:column;align-items:center;"><div style="width:18px;height:18px;background:#0058be;border:3px solid white;border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 2px 8px rgba(0,88,190,0.5);"></div></div>`,
+  iconSize: [18, 22],
+  iconAnchor: [9, 20],
+});
+
+function MapClickHandler({ onMapClick }) {
+  useMapEvents({ click: (e) => onMapClick(e.latlng.lat, e.latlng.lng) });
+  return null;
+}
+
+function MapRecenter({ lat, lng }) {
+  const map = useMap();
+  useEffect(() => { map.setView([lat, lng]); }, [lat, lng]);
+  return null;
 }
 
 function EditServiceModal({ service, onClose, onSaved }) {
@@ -49,45 +71,70 @@ function EditServiceModal({ service, onClose, onSaved }) {
 
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm px-4">
-      <div style={{ background: "#eff6ff" }} className="rounded-3xl shadow-2xl w-full max-w-md p-8 border border-blue-100">
-        <div className="flex items-center justify-between mb-6">
+      <div style={{ background: "#eff6ff", borderRadius: "24px", width: "100%", maxWidth: "480px", maxHeight: "90vh", overflow: "hidden", boxShadow: "0 25px 50px rgba(0,0,0,0.25)", display: "flex", flexDirection: "column" }}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 pt-7 pb-4 border-b border-blue-100 flex-shrink-0">
           <div>
             <h2 className="text-xl font-extrabold text-[var(--color-text)]" style={{ fontFamily: "var(--font-display)" }}>Edit Service</h2>
             <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{service.serviceName}</p>
           </div>
           <button onClick={onClose} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-blue-100 text-[var(--color-text-secondary)] transition-all">✕</button>
         </div>
-        <form onSubmit={handleSave} className="space-y-4">
-          <div>
-            <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Phone Number</label>
-            <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} maxLength={10}
-              className="w-full mt-1.5 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm" />
-          </div>
-          <div>
-            <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Description</label>
-            <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
-              className="w-full mt-1.5 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm resize-none" />
-          </div>
-          <div className="grid grid-cols-2 gap-3">
+        {/* Scrollable body */}
+        <div style={{ overflowY: "auto", flex: 1 }}>
+          <form id="edit-service-form" onSubmit={handleSave} className="px-8 pt-5 pb-6 space-y-4">
             <div>
-              <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Latitude</label>
-              <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)}
+              <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Phone Number</label>
+              <input type="tel" value={phone} onChange={e => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))} maxLength={10}
                 className="w-full mt-1.5 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm" />
             </div>
             <div>
-              <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Longitude</label>
-              <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)}
-                className="w-full mt-1.5 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm" />
+              <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Description</label>
+              <textarea value={description} onChange={e => setDescription(e.target.value)} rows={3}
+                className="w-full mt-1.5 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm resize-none" />
             </div>
-          </div>
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <div className="flex gap-3 pt-2">
-            <button type="button" onClick={onClose} className="flex-1 py-3 rounded-2xl border-2 border-gray-300 text-[var(--color-text-secondary)] font-bold text-sm hover:bg-blue-100 transition-all">Cancel</button>
-            <button type="submit" disabled={loading} className="flex-1 py-3 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-sm hover:bg-[var(--color-brand-dark)] transition-all disabled:opacity-60">
-              {loading ? "Saving..." : "Save Changes"}
-            </button>
-          </div>
-        </form>
+            <div>
+              <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Your Location</label>
+              <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 mb-2">Click on the map to update your pin location.</p>
+              <div className="rounded-xl overflow-hidden border border-gray-300 mb-3" style={{ height: "200px" }}>
+                <MapContainer
+                  center={[parseFloat(latitude) || 20.5937, parseFloat(longitude) || 78.9629]}
+                  zoom={15}
+                  style={{ height: "100%", width: "100%" }}
+                  scrollWheelZoom={true}
+                  attributionControl={SHOW_MAP_ATTRIBUTION}
+                >
+                  <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                  <MapClickHandler onMapClick={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); }} />
+                  <MapRecenter lat={parseFloat(latitude) || 20.5937} lng={parseFloat(longitude) || 78.9629} />
+                  {parseFloat(latitude) && parseFloat(longitude) && (
+                    <Marker position={[parseFloat(latitude), parseFloat(longitude)]} icon={pinIcon} />
+                  )}
+                </MapContainer>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-[var(--color-text-secondary)]">Latitude</label>
+                  <input type="text" value={latitude} onChange={e => setLatitude(e.target.value)}
+                    className="w-full mt-1 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm" />
+                </div>
+                <div>
+                  <label className="text-xs text-[var(--color-text-secondary)]">Longitude</label>
+                  <input type="text" value={longitude} onChange={e => setLongitude(e.target.value)}
+                    className="w-full mt-1 px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm" />
+                </div>
+              </div>
+            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </form>
+        </div>
+        {/* Footer */}
+        <div className="px-8 py-5 border-t border-blue-100 flex-shrink-0 flex gap-3">
+          <button type="button" onClick={onClose} className="flex-1 py-3 rounded-2xl border-2 border-gray-300 text-[var(--color-text-secondary)] font-bold text-sm hover:bg-blue-100 transition-all">Cancel</button>
+          <button type="submit" form="edit-service-form" disabled={loading} className="flex-1 py-3 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-sm hover:bg-[var(--color-brand-dark)] transition-all disabled:opacity-60">
+            {loading ? "Saving..." : "Save Changes"}
+          </button>
+        </div>
       </div>
     </div>
   );

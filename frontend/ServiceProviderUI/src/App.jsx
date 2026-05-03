@@ -184,11 +184,11 @@ function HomePage() {
 
       {/* Change location chip — shown when using a saved manual location */}
       {!showLocationBar && savedLocationLabel && (
-        <div className="fixed top-16 left-0 right-0 z-40 flex justify-center py-2 pointer-events-none">
+        <div className="fixed top-16 left-0 right-0 z-40 flex justify-center py-1.5 pointer-events-none">
           <button
             onClick={() => setShowLocationBar(true)}
-            className="pointer-events-auto flex items-center gap-1.5 bg-amber-50 border border-amber-300 text-amber-700 text-xs font-bold px-3 py-1.5 rounded-full shadow-sm hover:bg-amber-100 transition-all">
-            📍 {savedLocationLabel} · <span className="underline">Change</span>
+            className="pointer-events-auto flex items-center gap-1 md:gap-1.5 bg-amber-50 border border-amber-300 text-amber-700 text-[10px] md:text-xs font-bold px-2.5 md:px-3 py-1 md:py-1.5 rounded-full shadow-sm hover:bg-amber-100 transition-all max-w-[60vw] md:max-w-none truncate">
+            📍 <span className="truncate">{savedLocationLabel}</span> · <span className="underline flex-shrink-0">Change</span>
           </button>
         </div>
       )}
@@ -209,7 +209,7 @@ function HomePage() {
         />
       )}
 
-      <main className="w-full px-6 pb-28 md:pb-6 pt-24">
+      <main className={`w-full px-6 pb-28 md:pb-6 ${!showLocationBar && savedLocationLabel ? "pt-28 md:pt-24" : "pt-24"}`}>
         <div className="flex gap-6">
           <div className="flex-1 min-w-0">
             <SearchSection query={query} setQuery={setQuery} onSearch={handleSearch} />
