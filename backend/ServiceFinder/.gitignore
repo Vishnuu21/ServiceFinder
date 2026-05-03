@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+# Contains local credentials — never push to GitHub
+src/main/resources/application.properties
+
 ### STS ###
 .apt_generated
 .classpath
