@@ -50,7 +50,8 @@ const stats = [
 export default function LandingPage() {
   const navigate = useNavigate();
   const [scrolled, setScrolled] = useState(false);
-  const [words, setWords] = useState(["Plumber", "Electrician", "Cleaner", "Carpenter", "Painter", "Mechanic"]);
+  const [words, setWords] = useState([]);
+  const [wordsLoaded, setWordsLoaded] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [wordIdx, setWordIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
@@ -59,8 +60,15 @@ export default function LandingPage() {
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL || "http://localhost:8080"}/services`)
       .then(r => r.json())
-      .then(data => { if (Array.isArray(data) && data.length > 0) setWords(data.map(s => s.name)); })
-      .catch(() => {}); // silently fall back to defaults
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) setWords(data.map(s => s.name));
+        else setWords(["Plumber", "Electrician", "Cleaner", "Carpenter", "Painter", "Mechanic"]);
+        setWordsLoaded(true);
+      })
+      .catch(() => {
+        setWords(["Plumber", "Electrician", "Cleaner", "Carpenter", "Painter", "Mechanic"]);
+        setWordsLoaded(true);
+      });
   }, []);
 
   useEffect(() => {
@@ -69,8 +77,9 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Typewriter effect
+  // Typewriter effect — only starts after words are fetched
   useEffect(() => {
+    if (!wordsLoaded || words.length === 0) return;
     const word = words[wordIdx];
     const timeout = setTimeout(() => {
       if (!deleting) {
@@ -84,7 +93,7 @@ export default function LandingPage() {
       }
     }, deleting ? 60 : 100);
     return () => clearTimeout(timeout);
-  }, [charIdx, deleting, wordIdx]);
+  }, [charIdx, deleting, wordIdx, wordsLoaded]);
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
