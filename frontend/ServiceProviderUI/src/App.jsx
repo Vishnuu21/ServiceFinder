@@ -20,6 +20,7 @@ import FavouritesPage from "./pages/FavouritesPage";
 import ProviderProfilePage from "./pages/ProviderProfilePage";
 import FloatingBackground from "./components/FloatingBackground";
 import WelcomeSplash from "./components/WelcomeSplash";
+import LandingPage from "./pages/LandingPage";
 
 function HomePage() {
   const [query, setQuery] = useState("");
@@ -240,7 +241,7 @@ function HomePage() {
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/login" replace />;
+  return user ? children : <Navigate to="/landing" replace />;
 }
 
 function GuestRoute({ children }) {
@@ -268,6 +269,7 @@ export default function App() {
 
       {!showSplash && (
         <Routes>
+          <Route path="/landing" element={<GuestRoute><LandingPage /></GuestRoute>} />
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
           <Route path="/" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
