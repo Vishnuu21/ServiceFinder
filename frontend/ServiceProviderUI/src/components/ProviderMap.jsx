@@ -1,5 +1,6 @@
 // src/components/ProviderMap.jsx
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { SHOW_MAP_ATTRIBUTION } from "../config/location";
 import L from "leaflet";
@@ -93,6 +94,7 @@ function CoordsRecenter({ coords }) {
 
 export default function ProviderMap({ providers, coords, selectedProvider }) {
   const markerRefs = useRef({});
+  const [fullscreen, setFullscreen] = useState(false);
 
   const displayCoords =
     coords?.lat && coords?.lon
@@ -108,7 +110,7 @@ export default function ProviderMap({ providers, coords, selectedProvider }) {
     : [displayCoords.lat, displayCoords.lon];
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-[var(--color-border)]/40 shadow-sm" style={{ height: "calc(50.5vh - 100px)" }}>
+    <div className="rounded-2xl overflow-hidden border border-[var(--color-border)]/40 shadow-sm relative" style={{ height: "calc(50.5vh - 100px)" }}>
       <MapContainer center={center} zoom={14} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true} attributionControl={SHOW_MAP_ATTRIBUTION}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -150,6 +152,43 @@ export default function ProviderMap({ providers, coords, selectedProvider }) {
           ) : null
         )}
       </MapContainer>
+      {fullscreen && createPortal(
+        <div style={{ position: "fixed", top: 64, left: 0, right: 0, bottom: 0, zIndex: 10000 }}>
+          <MapContainer center={center} zoom={14} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true} attributionControl={SHOW_MAP_ATTRIBUTION}
+            whenReady={(map) => setTimeout(() => map.target.invalidateSize(), 100)}>
+            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+            <MapController selectedProvider={selectedProvider} markerRefs={markerRefs} />
+            {displayCoords && (
+              <Marker position={[displayCoords.lat, displayCoords.lon]} icon={userIcon}>
+                <Popup><p style={{ fontWeight: "bold", fontSize: "12px" }}>📍 Your Location</p></Popup>
+              </Marker>
+            )}
+            {providers.map((p) =>
+              p.lat && p.lon ? (
+                <Marker key={p.id} position={[p.lat, p.lon]} icon={selectedProvider?.id === p.id ? selectedIcon : normalIcon}
+                  ref={(ref) => { if (ref) markerRefs.current[p.id] = ref; }}>
+                  <Popup>
+                    <div style={{ minWidth: "130px" }}>
+                      <p style={{ fontWeight: "bold", marginBottom: "2px" }}>{p.name}</p>
+                      <p style={{ color: "#666", fontSize: "12px" }}>{p.skills[0]}</p>
+                      <p style={{ color: "#666", fontSize: "12px" }}>{p.distance}</p>
+                      <a href={`tel:${p.phone}`} style={{ color: "#0058be", fontWeight: "600", fontSize: "12px" }}>📞 {p.phone}</a>
+                    </div>
+                  </Popup>
+                </Marker>
+              ) : null
+            )}
+          </MapContainer>
+          <button onClick={() => setFullscreen(false)}
+            style={{ position: "fixed", top: 80, right: 16, zIndex: 10002, background: "white", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: "13px", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
+            ✕ Exit Fullscreen
+          </button>
+        </div>,
+        document.body
+      )}
+      <button onClick={() => setFullscreen(true)}
+        style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", fontSize: "14px" }}
+        title="Fullscreen">⛶</button>
     </div>
   );
 }

@@ -48,6 +48,7 @@ function EditServiceModal({ service, onClose, onSaved }) {
   const [longitude, setLongitude] = useState(String(service.longitude || ""));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [mapFullscreen, setMapFullscreen] = useState(false);
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -96,7 +97,7 @@ function EditServiceModal({ service, onClose, onSaved }) {
             <div>
               <label className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">Your Location</label>
               <p className="text-xs text-[var(--color-text-secondary)] mt-0.5 mb-2">Click on the map to update your pin location.</p>
-              <div className="rounded-xl overflow-hidden border border-gray-300 mb-3" style={{ height: "200px" }}>
+              <div className="rounded-xl overflow-hidden border border-gray-300 mb-3 relative" style={{ height: "200px" }}>
                 <MapContainer
                   center={[parseFloat(latitude) || 20.5937, parseFloat(longitude) || 78.9629]}
                   zoom={15}
@@ -111,7 +112,34 @@ function EditServiceModal({ service, onClose, onSaved }) {
                     <Marker position={[parseFloat(latitude), parseFloat(longitude)]} icon={pinIcon} />
                   )}
                 </MapContainer>
+                <button type="button" onClick={() => setMapFullscreen(true)}
+                  style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", fontSize: "14px" }}
+                  title="Fullscreen">⛶</button>
               </div>
+              {mapFullscreen && (
+                <div style={{ position: "fixed", inset: 0, zIndex: 10000 }}>
+                  <MapContainer
+                    center={[parseFloat(latitude) || 20.5937, parseFloat(longitude) || 78.9629]}
+                    zoom={15}
+                    style={{ height: "100%", width: "100%" }}
+                    scrollWheelZoom={true}
+                    attributionControl={SHOW_MAP_ATTRIBUTION}
+                  >
+                    <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                    <MapClickHandler onMapClick={(lat, lng) => { setLatitude(String(lat)); setLongitude(String(lng)); }} />
+                    {parseFloat(latitude) && parseFloat(longitude) && (
+                      <Marker position={[parseFloat(latitude), parseFloat(longitude)]} icon={pinIcon} />
+                    )}
+                  </MapContainer>
+                  <button type="button" onClick={() => setMapFullscreen(false)}
+                    style={{ position: "absolute", top: 16, right: 16, zIndex: 10001, background: "white", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: "13px", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
+                    ✕ Exit Fullscreen
+                  </button>
+                  <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", zIndex: 10001, background: "white", borderRadius: "10px", padding: "8px 16px", fontSize: "12px", fontWeight: 600, color: "#424754", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", whiteSpace: "nowrap" }}>
+                    📍 {parseFloat(latitude).toFixed(6)}, {parseFloat(longitude).toFixed(6)}
+                  </div>
+                </div>
+              )}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="text-xs text-[var(--color-text-secondary)]">Latitude</label>

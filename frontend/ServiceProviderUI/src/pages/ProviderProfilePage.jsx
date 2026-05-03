@@ -62,6 +62,7 @@ export default function ProviderProfilePage() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [userCoords, setUserCoords] = useState(null);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   const haversine = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -167,94 +168,94 @@ export default function ProviderProfilePage() {
         <ReviewModal provider={provider} onClose={() => setReviewOpen(false)} onReviewChange={() => getProviderById(id)} />
       )}
 
-      <div className="max-w-3xl mx-auto px-6 pt-24 pb-28 md:pb-16">
-
-        {/* Back button */}
+      <div className="fixed top-20 left-4 z-50">
         <button onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-brand)] mb-6 transition-colors">
+          className="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-brand)] transition-colors bg-blue-50/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-blue-100/60 shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
             <path fillRule="evenodd" d="M11.03 3.97a.75.75 0 0 1 0 1.06l-6.22 6.22H21a.75.75 0 0 1 0 1.5H4.81l6.22 6.22a.75.75 0 1 1-1.06 1.06l-7.5-7.5a.75.75 0 0 1 0-1.06l7.5-7.5a.75.75 0 0 1 1.06 0Z" clipRule="evenodd" />
           </svg>
           Back
         </button>
+      </div>
 
-        {/* Profile card */}
-        <div className="bg-blue-50/70 backdrop-blur-sm rounded-3xl p-8 border border-blue-100/80 shadow-sm mb-5">
-          <div className="flex items-start gap-5">
-            {/* Avatar */}
-            <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0">
+      {/* Full screen layout — header(64px) + content fills rest */}
+      <div className="fixed inset-0 top-16 flex flex-col max-w-3xl mx-auto px-6 pb-16 md:pb-4 pt-12 w-full left-0 right-0">
+        {/* Profile card — fixed height */}
+        <div className="bg-blue-50/70 backdrop-blur-sm rounded-3xl p-5 border border-blue-100/80 shadow-sm mb-3 flex-shrink-0">
+          <div className="flex items-start gap-4">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden flex-shrink-0">
               {provider.profilePicture ? (
                 <img src={provider.profilePicture} alt={provider.name} className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-3xl">
+                <div className="w-full h-full bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-2xl">
                   {provider.name?.charAt(0).toUpperCase()}
                 </div>
               )}
             </div>
-
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h1 className="text-2xl font-extrabold text-[var(--color-text)]" style={{ fontFamily: "var(--font-display)" }}>
-                    {provider.name}
-                  </h1>
-                  <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">{provider.skills[0]}</p>
+                  <h1 className="text-xl font-extrabold text-[var(--color-text)]" style={{ fontFamily: "var(--font-display)" }}>{provider.name}</h1>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">{provider.skills[0]}</p>
                 </div>
-                <span className={`text-xs font-bold px-3 py-1 rounded-full flex-shrink-0 ${provider.available ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-400"}`}>
+                <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0 ${provider.available ? "bg-green-50 text-green-600" : "bg-slate-100 text-slate-400"}`}>
                   {provider.available ? "● Available" : "● Unavailable"}
                 </span>
               </div>
-
-              {/* Stats row */}
-              <div className="flex items-center gap-4 mt-3 flex-wrap">
+              <div className="flex items-center gap-3 mt-2 flex-wrap">
                 {provider.rating > 0 && (
-                  <span className="flex items-center gap-1 text-sm font-semibold text-amber-600">
-                    ⭐ {provider.rating} <span className="text-xs text-amber-500">({provider.totalReviews} reviews)</span>
+                  <span className="flex items-center gap-1 text-xs font-semibold text-amber-600">
+                    ⭐ {provider.rating} <span className="text-amber-500">({provider.totalReviews})</span>
                   </span>
                 )}
-                <span className="flex items-center gap-1 text-sm text-[var(--color-text-secondary)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
-                    <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-2.003 3.5-4.697 3.5-8.327a8 8 0 1 0-16 0c0 3.63 1.556 6.326 3.5 8.327a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742Z" clipRule="evenodd" />
-                  </svg>
-                  {distance}
-                </span>
-                <span className="text-sm text-red-400">❤️ {provider.favouriteCount}</span>
+                {distance && (
+                  <span className="flex items-center gap-1 text-xs text-[var(--color-text-secondary)]">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+                      <path fillRule="evenodd" d="M11.54 22.351l.07.04.028.016a.76.76 0 0 0 .723 0l.028-.015.071-.041a16.975 16.975 0 0 0 1.144-.742 19.58 19.58 0 0 0 2.683-2.282c1.944-2.003 3.5-4.697 3.5-8.327a8 8 0 1 0-16 0c0 3.63 1.556 6.326 3.5 8.327a19.58 19.58 0 0 0 2.682 2.282 16.975 16.975 0 0 0 1.145.742Z" clipRule="evenodd" />
+                    </svg>
+                    {distance}
+                  </span>
+                )}
+                <span className="text-xs text-red-400">❤️ {provider.favouriteCount}</span>
               </div>
+              {provider.description && (
+                <div className="mt-1.5">
+                  <p className={`text-xs text-[var(--color-text-secondary)] ${descExpanded ? "" : "line-clamp-2"}`}>
+                    {provider.description}
+                  </p>
+                  {provider.description.length > 80 && (
+                    <button onClick={() => setDescExpanded(p => !p)}
+                      className="text-[10px] font-bold text-[var(--color-brand)] hover:underline mt-0.5">
+                      {descExpanded ? "Show less" : "Show more"}
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
-
-          {/* Description */}
-          {provider.description && (
-            <div className="mt-5 pt-5 border-t border-[var(--color-border)]/40">
-              <p className="text-xs font-bold text-[var(--color-text-secondary)] uppercase tracking-wider mb-2">About</p>
-              <p className="text-sm text-[var(--color-text)] leading-relaxed">{provider.description}</p>
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex gap-3 mt-6 flex-wrap">
+          <div className="flex gap-2 mt-4 flex-wrap">
             <a href={`tel:${provider.phone}`}
-              className="flex items-center gap-2 px-5 py-3 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-brand)] font-bold text-sm hover:bg-[var(--color-muted)] transition-all">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+              className="flex items-center gap-1.5 px-4 py-2 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-brand)] font-bold text-xs hover:bg-[var(--color-muted)] transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5">
                 <path fillRule="evenodd" d="M1.5 4.5a3 3 0 0 1 3-3h1.372c.86 0 1.61.586 1.819 1.42l1.105 4.423a1.875 1.875 0 0 1-.694 1.955l-1.293.97c-.135.101-.164.249-.126.352a11.285 11.285 0 0 0 6.697 6.697c.103.038.25.009.352-.126l.97-1.293a1.875 1.875 0 0 1 1.955-.694l4.423 1.105c.834.209 1.42.959 1.42 1.82V19.5a3 3 0 0 1-3 3h-2.25C8.552 22.5 1.5 15.448 1.5 6.75V4.5Z" clipRule="evenodd" />
               </svg>
               {provider.phone}
             </a>
             <button onClick={() => setReviewOpen(true)}
-              className="px-5 py-3 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] font-bold text-sm hover:bg-[var(--color-muted)] transition-all">
+              className="px-4 py-2 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] font-bold text-xs hover:bg-[var(--color-muted)] transition-all">
               Reviews
             </button>
             {user?.role === "CUSTOMER" && (
               <>
                 <button onClick={toggleFav}
-                  className={`px-5 py-3 rounded-2xl border-2 font-bold text-sm transition-all flex items-center gap-2 ${fav ? "border-red-200 bg-red-50 text-red-500" : "border-[var(--color-border)] text-slate-400 hover:border-red-200 hover:text-red-400"}`}>
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={fav ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" className="w-4 h-4">
+                  className={`px-4 py-2 rounded-2xl border-2 font-bold text-xs transition-all flex items-center gap-1.5 ${fav ? "border-red-200 bg-red-50 text-red-500" : "border-[var(--color-border)] text-slate-400 hover:border-red-200 hover:text-red-400"}`}>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill={fav ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" className="w-3.5 h-3.5">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
                   </svg>
                   {fav ? "Saved" : "Save"}
                 </button>
                 <button onClick={() => setBookingOpen(true)}
-                  className="flex-1 px-5 py-3 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-sm hover:bg-[var(--color-brand-dark)] transition-all">
+                  className="flex-1 px-4 py-2 rounded-2xl bg-[var(--color-brand)] text-white font-bold text-xs hover:bg-[var(--color-brand-dark)] transition-all">
                   Book Now
                 </button>
               </>
@@ -262,29 +263,25 @@ export default function ProviderProfilePage() {
           </div>
         </div>
 
-        {/* Map */}
+        {/* Map — fills remaining space */}
         {provider.lat && provider.lon && (
-          <div className="bg-blue-50/70 backdrop-blur-sm rounded-3xl overflow-hidden border border-blue-100/80 shadow-sm">
-            <div className="px-6 py-4 border-b border-[var(--color-border)]/40">
+          <div className="bg-blue-50/70 backdrop-blur-sm rounded-3xl overflow-hidden border border-blue-100/80 shadow-sm flex-1 flex flex-col min-h-0">
+            <div className="px-4 py-3 border-b border-[var(--color-border)]/40 flex-shrink-0">
               <p className="font-bold text-sm text-[var(--color-text)]">📍 Location</p>
             </div>
-            <div style={{ height: "calc(100vh - 520px)", minHeight: "250px" }}>
+            <div className="flex-1 min-h-0">
               <MapContainer center={[provider.lat, provider.lon]} zoom={13} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true} attributionControl={SHOW_MAP_ATTRIBUTION}>
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <FitAndFly providerLat={provider.lat} providerLon={provider.lon} userLat={userCoords?.lat} userLon={userCoords?.lon} />
-                {/* Provider marker */}
                 <Marker position={[provider.lat, provider.lon]} icon={providerIcon}>
                   <Popup>
                     <p style={{ fontWeight: "bold" }}>{provider.name}</p>
                     <p style={{ color: "#666", fontSize: "12px" }}>{provider.skills[0]}</p>
                   </Popup>
                 </Marker>
-                {/* User location marker */}
                 {userCoords && (
                   <Marker position={[userCoords.lat, userCoords.lon]} icon={userIcon}>
-                    <Popup>
-                      <p style={{ fontWeight: "bold", fontSize: "12px" }}>📍 Your Location</p>
-                    </Popup>
+                    <Popup><p style={{ fontWeight: "bold", fontSize: "12px" }}>📍 Your Location</p></Popup>
                   </Marker>
                 )}
               </MapContainer>
