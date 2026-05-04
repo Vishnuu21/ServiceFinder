@@ -48,4 +48,26 @@ public class AuthController {
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         }
     }
+
+    @PostMapping("/verify-password")
+    public ResponseEntity<?> verifyPassword(@RequestBody Map<String, String> body, Authentication auth) {
+        try {
+            boolean valid = authService.verifyPassword(auth.getName(), body.get("password"));
+            if (!valid) return ResponseEntity.badRequest().body(Map.of("message", "Incorrect password"));
+            return ResponseEntity.ok(Map.of("valid", true));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/init-super-admin")
+    public ResponseEntity<?> initSuperAdmin(@RequestBody Map<String, String> body) {
+        try {
+            return ResponseEntity.ok(authService.initSuperAdmin(
+                body.get("name"), body.get("email"), body.get("password")
+            ));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
 }

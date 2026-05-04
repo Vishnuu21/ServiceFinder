@@ -38,6 +38,8 @@ public class FavouriteService {
 
     public void addFavourite(String email, Long providerId) {
         User user = getUser(email);
+        if (user.getRole() == User.Role.ADMIN || user.getRole() == User.Role.SUPER_ADMIN)
+            throw new RuntimeException("Admins cannot add favourites");
         if (favouriteRepo.existsByUserIdAndProviderId(user.getId(), providerId)) return;
         ServiceProvider provider = providerRepo.findById(providerId)
                 .orElseThrow(() -> new RuntimeException("Provider not found"));

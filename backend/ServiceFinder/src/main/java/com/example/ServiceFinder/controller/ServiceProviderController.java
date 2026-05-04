@@ -27,27 +27,39 @@ public class ServiceProviderController {
     }
 
     // Get nearest providers
-  @GetMapping("/nearby")
-public List<ProviderResponse> getNearby(
-        @RequestParam double lat,
-        @RequestParam double lon) {
-    return service.findNearbyAll(lat, lon);
-}
+    @GetMapping("/nearby")
+    public ResponseEntity<?> getNearby(
+            @RequestParam double lat,
+            @RequestParam double lon) {
+        try {
+            return ResponseEntity.ok(service.findNearbyAll(lat, lon));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
 
     @GetMapping("/nearby-by-service")
-    public List<ProviderResponse> getNearbyByService(
+    public ResponseEntity<?> getNearbyByService(
             @RequestParam double lat,
             @RequestParam double lon,
             @RequestParam Long serviceId) {
-        return service.findNearbyByService(lat, lon, serviceId);
+        try {
+            return ResponseEntity.ok(service.findNearbyByService(lat, lon, serviceId));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping("/search")
-    public List<ProviderResponse> search(
+    public ResponseEntity<?> search(
             @RequestParam double lat,
             @RequestParam double lon,
             @RequestParam String serviceName) {
-        return service.findNearbyByServiceName(lat, lon, serviceName);
+        try {
+            return ResponseEntity.ok(service.findNearbyByServiceName(lat, lon, serviceName));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")

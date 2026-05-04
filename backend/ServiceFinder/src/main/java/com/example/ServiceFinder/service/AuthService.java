@@ -79,4 +79,25 @@ public class AuthService {
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
         return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getProfilePicture());
     }
+
+    public boolean verifyPassword(String email, String rawPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    public AuthResponse initSuperAdmin(String name, String email, String password) {
+        boolean exists = userRepository.findAll().stream()
+                .anyMatch(u -> u.getRole() == User.Role.SUPER_ADMIN);
+        if (exists) throw new RuntimeException("Super Admin already exists");
+        User user = User.builder()
+                .name(name)
+                .email(email)
+                .password(passwordEncoder.encode(password))
+                .role(User.Role.SUPER_ADMIN)
+                .build();
+        userRepository.save(user);
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), null);
+    }
 }

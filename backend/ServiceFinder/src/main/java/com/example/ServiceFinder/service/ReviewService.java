@@ -31,6 +31,8 @@ public class ReviewService {
         User user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        if (user.getRole() == User.Role.ADMIN || user.getRole() == User.Role.SUPER_ADMIN)
+            throw new RuntimeException("Admins cannot leave reviews");
         if (reviewRepo.existsByUserIdAndProviderId(user.getId(), request.getProviderId())) {
             throw new RuntimeException("You have already reviewed this provider");
         }

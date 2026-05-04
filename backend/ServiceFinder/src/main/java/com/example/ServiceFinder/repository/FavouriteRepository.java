@@ -14,6 +14,8 @@ public interface FavouriteRepository extends JpaRepository<Favourite, Long> {
     @Transactional
     void deleteByUserIdAndProviderId(Long userId, Long providerId);
     @Transactional
+    void deleteByUserId(Long userId);
+    @Transactional
     void deleteByProviderId(Long providerId);
     int countByProviderId(Long providerId);
 }

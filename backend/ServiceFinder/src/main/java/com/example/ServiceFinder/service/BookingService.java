@@ -83,12 +83,15 @@ public class BookingService {
 
         Booking.Status newStatus = Booking.Status.valueOf(status.toUpperCase());
 
-        // customer can only cancel
-        if (user.getRole().equals(User.Role.CUSTOMER)) {
+        // customer OR admin/super_admin can cancel their own booking
+        boolean isCustomerOrAdmin = user.getRole().equals(User.Role.CUSTOMER)
+                || user.getRole().equals(User.Role.ADMIN)
+                || user.getRole().equals(User.Role.SUPER_ADMIN);
+        if (isCustomerOrAdmin) {
             if (!booking.getCustomer().getId().equals(user.getId()))
                 throw new RuntimeException("Not your booking");
             if (newStatus != Booking.Status.CANCELLED)
-                throw new RuntimeException("Customers can only cancel bookings");
+                throw new RuntimeException("You can only cancel bookings");
         }
 
         // provider can confirm, cancel, complete

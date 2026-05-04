@@ -9,6 +9,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
     boolean existsByEmail(String email);
 
-    @Query("SELECT u.profilePicture FROM User u WHERE LOWER(u.name) = LOWER(:name)")
+    @Query("SELECT u.profilePicture FROM User u WHERE LOWER(u.name) = LOWER(:name) ORDER BY u.id DESC LIMIT 1")
     Optional<String> findProfilePictureByName(String name);
 }

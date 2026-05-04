@@ -36,12 +36,13 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/register", "/auth/login", "/ping").permitAll()
+                .requestMatchers("/auth/register", "/auth/login", "/auth/init-super-admin", "/ping").permitAll()
                 .requestMatchers("/services/**").permitAll()
                 .requestMatchers("/providers/**").permitAll()
                 .requestMatchers("/reviews/**").permitAll()
                 .requestMatchers("/working-hours/**").permitAll()
                 .requestMatchers("/bookings/**").permitAll()
+                .requestMatchers("/admin/**").hasAnyRole("ADMIN", "SUPER_ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

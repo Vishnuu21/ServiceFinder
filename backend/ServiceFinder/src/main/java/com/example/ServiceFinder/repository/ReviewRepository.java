@@ -13,6 +13,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
     List<Review> findByProviderId(Long providerId);
     @Transactional
     void deleteByProviderId(Long providerId);
+    @Transactional
+    void deleteByUserId(Long userId);
 
     Optional<Review> findByUserIdAndProviderId(Long userId, Long providerId);
 

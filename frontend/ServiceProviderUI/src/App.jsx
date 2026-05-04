@@ -21,6 +21,7 @@ import ProviderProfilePage from "./pages/ProviderProfilePage";
 import FloatingBackground from "./components/FloatingBackground";
 import WelcomeSplash from "./components/WelcomeSplash";
 import LandingPage from "./pages/LandingPage";
+import AdminPage from "./pages/AdminPage";
 
 function HomePage() {
   const [query, setQuery] = useState("");
@@ -241,12 +242,20 @@ function HomePage() {
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
-  return user ? children : <Navigate to="/landing" replace />;
+  if (!user) return <Navigate to="/landing" replace />;
+  return children;
 }
 
 function GuestRoute({ children }) {
   const { user } = useAuth();
   return user ? <Navigate to="/" replace /> : children;
+}
+
+function AdminRoute({ children }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/landing" replace />;
+  if (user.role !== "ADMIN" && user.role !== "SUPER_ADMIN") return <Navigate to="/" replace />;
+  return children;
 }
 
 export default function App() {
@@ -269,6 +278,7 @@ export default function App() {
 
       {!showSplash && (
         <Routes>
+          <Route path="/admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
           <Route path="/landing" element={<GuestRoute><LandingPage /></GuestRoute>} />
           <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
           <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />

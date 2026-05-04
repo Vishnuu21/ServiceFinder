@@ -30,6 +30,6 @@ public class User {
     private String profilePicture;
 
     public enum Role {
-        CUSTOMER, PROVIDER
+        CUSTOMER, PROVIDER, ADMIN, SUPER_ADMIN
     }
 }

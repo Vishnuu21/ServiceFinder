@@ -18,9 +18,10 @@ export function AuthProvider({ children }) {
     if (SHOW_WELCOME_SPLASH) setShowSplash(true);
   };
 
-  const updateProfilePicture = (profilePicture) => {
-    const updated = { ...user, profilePicture };
+  const updateProfilePicture = (profilePicture, token) => {
+    const updated = { ...user, profilePicture, ...(token && { token }) };
     localStorage.setItem("user", JSON.stringify(updated));
+    if (token) localStorage.setItem("token", token);
     setUser(updated);
   };
 
