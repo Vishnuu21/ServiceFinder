@@ -78,7 +78,9 @@ export default function Header({ onProvidersUpdated }) {
           {/* Desktop nav */}
           <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-[var(--color-text-secondary)]">
             <Link to="/" className="hover:text-[var(--color-brand)] transition-colors">Find Services</Link>
-            <Link to="/bookings" className="hover:text-[var(--color-brand)] transition-colors">My Bookings</Link>
+            <Link to="/bookings" className="hover:text-[var(--color-brand)] transition-colors">
+              {user?.role === "ADMIN" || user?.role === "SUPER_ADMIN" ? "All Bookings" : "My Bookings"}
+            </Link>
             {user?.role === "PROVIDER" ? (
               <Link to="/favourites" className="hover:text-[var(--color-brand)] transition-colors">My Services</Link>
             ) : (

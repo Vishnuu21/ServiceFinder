@@ -144,6 +144,8 @@ export default function ProviderProfilePage() {
     try {
       if (fav) { await removeFavourite(id); setFav(false); }
       else { await addFavourite(id); setFav(true); }
+      const p = await getProviderById(id);
+      setProvider(prev => ({ ...prev, favouriteCount: p.favouriteCount || 0 }));
     } catch {}
   };
 

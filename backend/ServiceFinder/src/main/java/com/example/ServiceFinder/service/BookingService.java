@@ -51,6 +51,14 @@ public class BookingService {
         return toResponse(bookingRepo.save(booking));
     }
 
+    // Get all bookings (admin)
+    public List<BookingResponse> getAllBookings() {
+        return bookingRepo.findAll().stream()
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .map(this::toResponse)
+                .toList();
+    }
+
     // Get bookings for customer
     public List<BookingResponse> getCustomerBookings(String email) {
         User customer = userRepo.findByEmail(email)
@@ -61,16 +69,15 @@ public class BookingService {
 
     // Get bookings for provider
     public List<BookingResponse> getProviderBookings(String email) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        ServiceProvider provider = providerRepo.findAll().stream()
-                .filter(p -> p.getName().equalsIgnoreCase(user.getName()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No provider profile found"));
-
-        return bookingRepo.findByProviderIdOrderByCreatedAtDesc(provider.getId())
-                .stream().map(this::toResponse).toList();
+        List<ServiceProvider> providers = providerRepo.findAll().stream()
+                .filter(p -> email.equalsIgnoreCase(p.getEmail()))
+                .toList();
+        if (providers.isEmpty()) throw new RuntimeException("No provider profile found");
+        return providers.stream()
+                .flatMap(p -> bookingRepo.findByProviderIdOrderByCreatedAtDesc(p.getId()).stream())
+                .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
+                .map(this::toResponse)
+                .toList();
     }
 
     // Update booking status
@@ -83,22 +90,23 @@ public class BookingService {
 
         Booking.Status newStatus = Booking.Status.valueOf(status.toUpperCase());
 
-        // customer OR admin/super_admin can cancel their own booking
-        boolean isCustomerOrAdmin = user.getRole().equals(User.Role.CUSTOMER)
-                || user.getRole().equals(User.Role.ADMIN)
-                || user.getRole().equals(User.Role.SUPER_ADMIN);
-        if (isCustomerOrAdmin) {
+        // admins have full control over any booking
+        if (user.getRole().equals(User.Role.ADMIN) || user.getRole().equals(User.Role.SUPER_ADMIN)) {
+            booking.setStatus(newStatus);
+            return toResponse(bookingRepo.save(booking));
+        }
+
+        // customer can only cancel their own booking
+        if (user.getRole().equals(User.Role.CUSTOMER)) {
             if (!booking.getCustomer().getId().equals(user.getId()))
                 throw new RuntimeException("Not your booking");
             if (newStatus != Booking.Status.CANCELLED)
                 throw new RuntimeException("You can only cancel bookings");
         }
 
-        // provider can confirm, cancel, complete
+        // provider can confirm, cancel, complete their own bookings
         if (user.getRole().equals(User.Role.PROVIDER)) {
-            boolean isTheirBooking = booking.getProvider().getName()
-                    .equalsIgnoreCase(user.getName());
-            if (!isTheirBooking)
+            if (!user.getEmail().equalsIgnoreCase(booking.getProvider().getEmail()))
                 throw new RuntimeException("Not your booking");
         }
 
@@ -107,9 +115,12 @@ public class BookingService {
     }
 
     private BookingResponse toResponse(Booking b) {
-        String providerPic = userRepo.findProfilePictureByName(b.getProvider().getName()).orElse(null);
+        String providerPic = b.getProvider().getEmail() != null && !b.getProvider().getEmail().isEmpty()
+                ? userRepo.findProfilePictureByEmail(b.getProvider().getEmail()).orElse(null)
+                : userRepo.findProfilePictureByName(b.getProvider().getName()).orElse(null);
         return new BookingResponse(
                 b.getId(),
+                b.getCustomer().getId(),
                 b.getCustomer().getName(),
                 b.getProvider().getName(),
                 b.getProvider().getService().getName(),

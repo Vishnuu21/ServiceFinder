@@ -34,10 +34,13 @@ public class BookingController {
     public ResponseEntity<?> getMyBookings(Authentication auth) {
         try {
             List<BookingResponse> bookings;
-            // check role from authorities
             boolean isProvider = auth.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_PROVIDER"));
-            if (isProvider) {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_SUPER_ADMIN"));
+            if (isAdmin) {
+                bookings = bookingService.getAllBookings();
+            } else if (isProvider) {
                 bookings = bookingService.getProviderBookings(auth.getName());
             } else {
                 bookings = bookingService.getCustomerBookings(auth.getName());

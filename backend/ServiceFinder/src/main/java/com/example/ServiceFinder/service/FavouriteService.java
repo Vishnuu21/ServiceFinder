@@ -65,9 +65,8 @@ public class FavouriteService {
     }
 
     public int getMyFavouriteCount(String email) {
-        User user = getUser(email);
         return providerRepo.findAll().stream()
-                .filter(p -> p.getName().equalsIgnoreCase(user.getName()))
+                .filter(p -> email.equalsIgnoreCase(p.getEmail()))
                 .mapToInt(p -> favouriteRepo.countByProviderId(p.getId()))
                 .sum();
     }
@@ -75,7 +74,7 @@ public class FavouriteService {
     public List<ProviderResponse> getMyServices(String email) {
         User user = getUser(email);
         return providerRepo.findAll().stream()
-                .filter(p -> p.getName().equalsIgnoreCase(user.getName()))
+                .filter(p -> email.equalsIgnoreCase(p.getEmail()))
                 .map(p -> toResponse(p, 0.0, 0.0))
                 .toList();
     }
@@ -101,7 +100,9 @@ public class FavouriteService {
         int total = reviewRepo.countByProviderId(p.getId());
         double rating = avg != null ? Math.round(avg * 10.0) / 10.0 : 0.0;
         int favCount = favouriteRepo.countByProviderId(p.getId());
-        String profilePicture = userRepo.findProfilePictureByName(p.getName()).orElse(null);
+        String profilePicture = p.getEmail() != null && !p.getEmail().isEmpty()
+                ? userRepo.findProfilePictureByEmail(p.getEmail()).orElse(null)
+                : userRepo.findProfilePictureByName(p.getName()).orElse(null);
         double dist = distance(lat, lon, p.getLatitude(), p.getLongitude());
         return new ProviderResponse(
                 p.getId(),

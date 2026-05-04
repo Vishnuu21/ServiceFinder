@@ -259,9 +259,12 @@ function AdminRoute({ children }) {
 }
 
 export default function App() {
-  const { user, showSplash, setShowSplash } = useAuth();
+  const { user, showSplash, setShowSplash, refreshUser } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user) refreshUser();
+  }, []);
   const handleSplashDone = () => {
     setShowSplash(false);
     navigate("/");

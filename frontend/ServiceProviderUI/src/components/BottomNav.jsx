@@ -56,11 +56,11 @@ export default function BottomNav({ activeTab, onTabChange }) {
     : location.pathname === "/favourites" ? "favorites"
     : "find";
 
-  const visibleItems = navItems.filter(item => item.id !== "profile").map(item =>
-    item.id === "favorites" && user?.role === "PROVIDER"
-      ? { ...item, label: "My Services" }
-      : item
-  );
+  const visibleItems = navItems.filter(item => item.id !== "profile").map(item => {
+    if (item.id === "favorites" && user?.role === "PROVIDER") return { ...item, label: "My Services" };
+    if (item.id === "bookings" && (user?.role === "ADMIN" || user?.role === "SUPER_ADMIN")) return { ...item, label: "All Bookings" };
+    return item;
+  });
 
   const handleTab = (id) => {
     if (id === "bookings") navigate("/bookings");

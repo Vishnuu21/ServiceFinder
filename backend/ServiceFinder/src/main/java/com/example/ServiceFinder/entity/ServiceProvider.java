@@ -14,6 +14,7 @@ public class ServiceProvider {
     private Long id;
 
     private String name;
+    private String email;
 
     @ManyToOne
     @JoinColumn(name = "service_id")

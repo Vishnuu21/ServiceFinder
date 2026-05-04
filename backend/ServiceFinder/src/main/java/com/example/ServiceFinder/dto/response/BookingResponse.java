@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BookingResponse {
     private Long id;
+    private Long customerId;
     private String customerName;
     private String providerName;
     private String serviceName;

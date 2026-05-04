@@ -179,15 +179,15 @@ export default function ReviewModal({ provider, onClose, onReviewChange }) {
           )}
 
           {/* Provider only message */}
-          {user?.role === "PROVIDER" && (
+          {(user?.role === "PROVIDER" || user?.role === "ADMIN" || user?.role === "SUPER_ADMIN") && (
             <div className="bg-[var(--color-muted)] rounded-2xl p-4 text-xs text-[var(--color-text-secondary)] text-center">
-              Only customers can write reviews.
+              {user?.role === "PROVIDER" ? "Only customers can write reviews." : "Admins cannot write reviews."}
             </div>
           )}
 
           {/* Reviews list */}
           {reviews.length === 0 ? (
-            user?.role !== "PROVIDER" && (
+            user?.role === "CUSTOMER" && (
               <p className="text-center text-sm text-[var(--color-text-secondary)] py-6">
                 No reviews yet. Be the first to review!
               </p>

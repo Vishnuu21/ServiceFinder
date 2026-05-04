@@ -25,8 +25,6 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
-
-        // validate role
         User.Role role;
         try {
             role = User.Role.valueOf(request.getRole().toUpperCase());
@@ -34,7 +32,9 @@ public class AuthService {
             throw new RuntimeException("Invalid role. Must be CUSTOMER or PROVIDER.");
         }
 
-        // check if email already exists
+        if (role == User.Role.SUPER_ADMIN || role == User.Role.ADMIN)
+            throw new RuntimeException("Invalid role. Must be CUSTOMER or PROVIDER.");
+
         if (userRepository.existsByEmail(request.getEmail())) {
             User existing = userRepository.findByEmail(request.getEmail()).get();
             if (!existing.getRole().equals(role)) {
@@ -54,9 +54,8 @@ public class AuthService {
                 .build();
 
         userRepository.save(user);
-
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), null);
+        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), null, user.getId());
     }
 
     public AuthResponse login(LoginRequest request) {
@@ -68,7 +67,7 @@ public class AuthService {
         }
 
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getProfilePicture());
+        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getProfilePicture(), user.getId());
     }
 
     public AuthResponse updateProfilePicture(String email, String base64Image) {
@@ -77,13 +76,20 @@ public class AuthService {
         user.setProfilePicture(base64Image);
         userRepository.save(user);
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getProfilePicture());
+        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getProfilePicture(), user.getId());
     }
 
     public boolean verifyPassword(String email, String rawPassword) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return passwordEncoder.matches(rawPassword, user.getPassword());
+    }
+
+    public AuthResponse getMe(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
+        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), user.getProfilePicture(), user.getId());
     }
 
     public AuthResponse initSuperAdmin(String name, String email, String password) {
@@ -98,6 +104,6 @@ public class AuthService {
                 .build();
         userRepository.save(user);
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), null);
+        return new AuthResponse(token, user.getName(), user.getEmail(), user.getRole().name(), null, user.getId());
     }
 }

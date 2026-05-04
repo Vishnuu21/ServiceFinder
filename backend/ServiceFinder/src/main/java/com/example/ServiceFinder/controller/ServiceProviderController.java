@@ -22,7 +22,8 @@ public class ServiceProviderController {
 
     // Add provider
     @PostMapping
-    public ServiceProvider addProvider(@RequestBody ServiceProvider provider) {
+    public ServiceProvider addProvider(@RequestBody ServiceProvider provider, Authentication auth) {
+        if (auth != null) provider.setEmail(auth.getName());
         return service.save(provider);
     }
 

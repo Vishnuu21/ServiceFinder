@@ -41,3 +41,13 @@ export async function uploadProfilePicture(base64Image) {
   if (!res.ok) throw new Error(await parseError(res));
   return res.json();
 }
+
+export async function fetchMe() {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  const res = await fetch(`${AUTH_URL}/me`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  if (!res.ok) return null;
+  return res.json();
+}

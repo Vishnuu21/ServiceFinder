@@ -60,6 +60,15 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<?> getMe(Authentication auth) {
+        try {
+            return ResponseEntity.ok(authService.getMe(auth.getName()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PostMapping("/init-super-admin")
     public ResponseEntity<?> initSuperAdmin(@RequestBody Map<String, String> body) {
         try {

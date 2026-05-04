@@ -59,7 +59,7 @@ public class ServiceProviderService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         ServiceProvider provider = repo.findById(providerId)
                 .orElseThrow(() -> new RuntimeException("Service not found"));
-        if (!provider.getName().equalsIgnoreCase(user.getName()))
+        if (!user.getEmail().equalsIgnoreCase(provider.getEmail()))
             throw new RuntimeException("Not your service");
         if (body.containsKey("phone"))       provider.setPhone((String) body.get("phone"));
         if (body.containsKey("description")) provider.setDescription((String) body.get("description"));
@@ -74,7 +74,7 @@ public class ServiceProviderService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         ServiceProvider provider = repo.findById(providerId)
                 .orElseThrow(() -> new RuntimeException("Service not found"));
-        if (!provider.getName().equalsIgnoreCase(user.getName()))
+        if (!user.getEmail().equalsIgnoreCase(provider.getEmail()))
             throw new RuntimeException("Not your service");
         reviewRepo.deleteByProviderId(providerId);
         bookingRepo.deleteByProviderId(providerId);
@@ -83,8 +83,10 @@ public class ServiceProviderService {
         repo.deleteById(providerId);
     }
 
-    private String getProfilePicture(String providerName) {
-        return userRepo.findProfilePictureByName(providerName).orElse(null);
+    private String getProfilePicture(ServiceProvider p) {
+        if (p.getEmail() != null && !p.getEmail().isEmpty())
+            return userRepo.findProfilePictureByEmail(p.getEmail()).orElse(null);
+        return userRepo.findProfilePictureByName(p.getName()).orElse(null);
     }
 
     private ProviderResponse toResponse(ServiceProvider p, double lat, double lon) {
@@ -106,7 +108,7 @@ public class ServiceProviderService {
                 available,
                 favCount,
                 p.getDescription(),
-                getProfilePicture(p.getName())
+                getProfilePicture(p)
         );
     }
 

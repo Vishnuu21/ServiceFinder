@@ -3,10 +3,8 @@ package com.example.ServiceFinder.service;
 import com.example.ServiceFinder.dto.request.WorkingHoursRequest;
 import com.example.ServiceFinder.dto.response.WorkingHoursResponse;
 import com.example.ServiceFinder.entity.ServiceProvider;
-import com.example.ServiceFinder.entity.User;
 import com.example.ServiceFinder.entity.WorkingHours;
 import com.example.ServiceFinder.repository.ServiceProviderRepository;
-import com.example.ServiceFinder.repository.UserRepository;
 import com.example.ServiceFinder.repository.WorkingHoursRepository;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +17,11 @@ public class WorkingHoursService {
 
     private final WorkingHoursRepository repo;
     private final ServiceProviderRepository providerRepo;
-    private final UserRepository userRepo;
 
     public WorkingHoursService(WorkingHoursRepository repo,
-                                ServiceProviderRepository providerRepo,
-                                UserRepository userRepo) {
+                                ServiceProviderRepository providerRepo) {
         this.repo = repo;
         this.providerRepo = providerRepo;
-        this.userRepo = userRepo;
     }
 
     public List<WorkingHoursResponse> getWorkingHours(Long providerId) {
@@ -36,18 +31,15 @@ public class WorkingHoursService {
     }
 
     public WorkingHoursResponse saveWorkingHours(String email, WorkingHoursRequest request) {
-        User user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
         ServiceProvider provider;
         if (request.getProviderId() != null) {
             provider = providerRepo.findById(request.getProviderId())
                     .orElseThrow(() -> new RuntimeException("Provider not found"));
-            if (!provider.getName().equalsIgnoreCase(user.getName()))
+            if (!email.equalsIgnoreCase(provider.getEmail()))
                 throw new RuntimeException("Not your service");
         } else {
             provider = providerRepo.findAll().stream()
-                    .filter(p -> p.getName().equalsIgnoreCase(user.getName()))
+                    .filter(p -> email.equalsIgnoreCase(p.getEmail()))
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("No provider profile found."));
         }
