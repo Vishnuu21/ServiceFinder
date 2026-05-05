@@ -9,6 +9,28 @@
   box-shadow: none !important;
 }
 
+/* style leaflet zoom + fullscreen controls to match app theme */
+.leaflet-control-zoom a,
+.leaflet-control-fullscreen a {
+  background-color: #eff6ff !important;
+  color: #191c1e !important;
+  border-color: rgba(0,88,190,0.2) !important;
+  font-weight: 700 !important;
+}
+.leaflet-control-zoom a:hover,
+.leaflet-control-fullscreen a:hover {
+  background-color: #d8e2ff !important;
+  color: #191c1e !important;
+}
+.leaflet-bar {
+  border: 1px solid rgba(0,88,190,0.2) !important;
+  box-shadow: 0 2px 8px rgba(0,88,190,0.1) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+}
+.leaflet-bar a:first-child { border-radius: 10px 10px 0 0 !important; }
+.leaflet-bar a:last-child  { border-radius: 0 0 10px 10px !important; }
+
 /* style native date/time inputs */
 input[type="date"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator {

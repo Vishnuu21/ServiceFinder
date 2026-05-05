@@ -88,7 +88,7 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
 
   const onDown = (e) => {
     e.preventDefault();
-    if (e.touches?.length === 2) {
+    if (e.touches?.length >= 2) {
       drag.current = null;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -102,23 +102,36 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
 
   const onMove = (e) => {
     e.preventDefault();
-    if (e.touches?.length === 2) {
+    if (e.touches?.length >= 2) {
       drag.current = null;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.hypot(dx, dy);
-      if (lastPinch.current) setTransform(t => clamp(imgRef.current, { ...t, scale: t.scale * (dist / lastPinch.current) }));
+      if (lastPinch.current) {
+        const ratio = dist / lastPinch.current;
+        if (ratio !== 1) setTransform(t => clamp(imgRef.current, { ...t, scale: t.scale * ratio }));
+      }
       lastPinch.current = dist;
       return;
     }
-    if (!drag.current) return;
+    if (!drag.current || lastPinch.current) return;
     const { x, y } = getXY(e);
     const dx = x - drag.current.startX;
     const dy = y - drag.current.startY;
     setTransform(t => clamp(imgRef.current, { ...t, x: drag.current.startTx + dx, y: drag.current.startTy + dy }));
   };
 
-  const onUp = () => { drag.current = null; lastPinch.current = null; };
+  const onUp = (e) => {
+    if (e?.touches?.length >= 2) return; // still pinching
+    if (e?.touches?.length === 1) {
+      // one finger lifted, one remains — reset drag to current position
+      lastPinch.current = null;
+      drag.current = null;
+      return;
+    }
+    drag.current = null;
+    lastPinch.current = null;
+  };
 
   const handleConfirm = () => {
     if (!imgEl) return;
@@ -149,6 +162,7 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
           onTouchStart={onDown}
           onTouchMove={onMove}
           onTouchEnd={onUp}
+          onTouchCancel={onUp}
         />
         <div className="flex gap-3 mt-4">
           <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] font-bold text-sm hover:bg-[var(--color-muted)] transition-all">Cancel</button>

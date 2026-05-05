@@ -180,14 +180,14 @@ export default function ProviderMap({ providers, coords, selectedProvider }) {
             )}
           </MapContainer>
           <button onClick={() => setFullscreen(false)}
-            style={{ position: "fixed", top: 80, right: 16, zIndex: 10002, background: "white", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: "13px", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
+            style={{ position: "fixed", top: 80, right: 16, zIndex: 10002, background: "#eff6ff", border: "1px solid rgba(0,88,190,0.2)", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: "13px", color: "#191c1e", boxShadow: "0 2px 8px rgba(0,88,190,0.1)" }}>
             ✕ Exit Fullscreen
           </button>
         </div>,
         document.body
       )}
       <button onClick={() => setFullscreen(true)}
-        style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", fontSize: "14px" }}
+        style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "#eff6ff", border: "1px solid rgba(0,88,190,0.2)", borderRadius: "8px", padding: "5px 8px", cursor: "pointer", fontSize: "14px", color: "#191c1e", boxShadow: "0 2px 6px rgba(0,88,190,0.1)" }}
         title="Fullscreen">⛶</button>
     </div>
   );
