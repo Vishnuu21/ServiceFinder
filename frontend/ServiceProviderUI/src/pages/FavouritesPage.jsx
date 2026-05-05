@@ -113,7 +113,7 @@ function EditServiceModal({ service, onClose, onSaved }) {
                   )}
                 </MapContainer>
                 <button type="button" onClick={() => setMapFullscreen(true)}
-                  style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "white", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", fontSize: "14px" }}
+                  style={{ position: "absolute", top: 8, right: 8, zIndex: 1000, background: "#eff6ff", border: "none", borderRadius: "8px", padding: "5px 8px", cursor: "pointer", boxShadow: "0 2px 6px rgba(0,0,0,0.2)", fontSize: "14px" }}
                   title="Fullscreen">⛶</button>
               </div>
               {mapFullscreen && (
@@ -132,7 +132,7 @@ function EditServiceModal({ service, onClose, onSaved }) {
                     )}
                   </MapContainer>
                   <button type="button" onClick={() => setMapFullscreen(false)}
-                    style={{ position: "absolute", top: 16, right: 16, zIndex: 10001, background: "white", border: "none", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: "13px", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
+                    style={{ position: "absolute", top: 16, right: 16, zIndex: 10001, background: "#eff6ff", border: "1px solid rgba(0,88,190,0.2)", borderRadius: "10px", padding: "8px 14px", cursor: "pointer", fontWeight: 700, fontSize: "13px", boxShadow: "0 2px 10px rgba(0,0,0,0.3)" }}>
                     ✕ Exit Fullscreen
                   </button>
                   <div style={{ position: "absolute", bottom: 16, left: "50%", transform: "translateX(-50%)", zIndex: 10001, background: "white", borderRadius: "10px", padding: "8px 16px", fontSize: "12px", fontWeight: 600, color: "#424754", boxShadow: "0 2px 10px rgba(0,0,0,0.2)", whiteSpace: "nowrap" }}>
