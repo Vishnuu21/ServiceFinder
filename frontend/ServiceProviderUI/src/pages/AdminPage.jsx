@@ -13,7 +13,7 @@ import {
   adminGetBookings, adminGetReviews
 } from "../services/adminService";
 
-const TABS = ["Overview", "Accounts", "Providers", "Categories", "Bookings", "Reviews"];
+const TABS = ["Overview", "Accounts", "Services", "Categories", "Bookings", "Reviews"];
 
 const DialogIcon = ({ type }) => {
   if (type === "password") return (
@@ -180,7 +180,7 @@ export default function AdminPage() {
     try {
       if (t === "Overview") setStats(await adminGetStats());
       if (t === "Accounts") setUsers(await adminGetUsers());
-      if (t === "Providers") setProviders(await adminGetProviders());
+      if (t === "Services") setProviders(await adminGetProviders());
       if (t === "Categories") setServices(await adminGetServices());
       if (t === "Bookings") setBookings(await adminGetBookings());
       if (t === "Reviews") setReviews(await adminGetReviews());
@@ -356,7 +356,7 @@ export default function AdminPage() {
                   )}
                   {/* Delete — not allowed on SUPER_ADMIN, ADMIN can only delete CUSTOMER/PROVIDER */}
                   {u.role !== "SUPER_ADMIN" && (user?.role === "SUPER_ADMIN" || (user?.role === "ADMIN" && u.role !== "ADMIN")) && (
-                    <button onClick={() => setConfirm({ message: `Delete user "${u.name}"? This removes their bookings, reviews and favourites.`, onConfirm: async () => { setConfirm(null); await adminDeleteUser(u.id); setUsers(prev => prev.filter(x => x.id !== u.id)); } })}
+                    <button onClick={() => setConfirm({ message: `Delete ${u.role === "PROVIDER" ? `provider` : `user`} "${u.name}"? This removes their bookings, reviews, favourites${u.role === "PROVIDER" ? " and services" : ""}.`, onConfirm: async () => { setConfirm(null); await adminDeleteUser(u.id); setUsers(prev => prev.filter(x => x.id !== u.id)); } })}
                       className="text-xs font-bold text-red-500 border-2 border-red-200 hover:bg-red-50 px-2.5 py-1.5 rounded-xl transition-all">
                       Delete
                     </button>
@@ -367,8 +367,8 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* Providers */}
-        {!loading && tab === "Providers" && (
+        {/* Services */}
+        {!loading && tab === "Services" && (
           <div className="space-y-3">
             <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name or service..."
               className="w-full px-4 py-3 rounded-xl bg-white border border-gray-300 outline-none focus:ring-2 focus:ring-[var(--color-brand)]/30 text-sm mb-4" />

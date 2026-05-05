@@ -170,7 +170,7 @@ export default function ProviderProfilePage() {
         <ReviewModal provider={provider} onClose={() => setReviewOpen(false)} onReviewChange={() => getProviderById(id)} />
       )}
 
-      <div className="fixed top-20 left-4 z-50">
+      <div className="fixed top-[68px] left-4 z-50">
         <button onClick={() => navigate(-1)}
           className="flex items-center gap-1.5 text-sm font-semibold text-[var(--color-text-secondary)] hover:text-[var(--color-brand)] transition-colors bg-blue-50/80 backdrop-blur-sm px-3 py-1.5 rounded-full border border-blue-100/60 shadow-sm">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
@@ -181,7 +181,7 @@ export default function ProviderProfilePage() {
       </div>
 
       {/* Full screen layout — header(64px) + content fills rest */}
-      <div className="fixed inset-0 top-16 flex flex-col max-w-3xl mx-auto px-6 pb-16 md:pb-4 pt-12 w-full left-0 right-0">
+      <div className="fixed inset-0 top-16 flex flex-col max-w-3xl mx-auto px-6 pb-16 md:pb-4 pt-10 w-full left-0 right-0">
         {/* Profile card — fixed height */}
         <div className="bg-blue-50/70 backdrop-blur-sm rounded-3xl p-5 border border-blue-100/80 shadow-sm mb-3 flex-shrink-0">
           <div className="flex items-start gap-4">

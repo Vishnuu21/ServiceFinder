@@ -25,7 +25,7 @@ export default function SearchSection({ query, setQuery, onSearch }) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && onSearch()}
-            placeholder="Search service (e.g. Plumber, Electrician)"
+            placeholder="Search service  (e.g. Electrician, Plumber)"
             className="w-full pl-12 pr-4 py-4 bg-[var(--color-muted)] border border-gray-300 rounded-2xl outline-none text-[var(--color-text)] placeholder:text-[var(--color-text-placeholder)] focus:ring-2 focus:ring-[var(--color-brand)]/30 focus:bg-white focus:border-[var(--color-brand)] transition-all text-sm"
           />
         </div>

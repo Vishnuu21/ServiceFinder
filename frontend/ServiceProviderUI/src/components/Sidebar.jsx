@@ -51,10 +51,10 @@ export default function Sidebar({ providers, coords, selectedProvider }) {
   ];
 
   return (
-    <aside className="sticky top-24 space-y-3">
+    <aside className="fixed top-24 right-6 w-96 flex flex-col gap-3" style={{ height: "calc(100vh - 112px)" }}>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 gap-3">
+      <div className="grid grid-cols-1 gap-3 flex-shrink-0">
         {stats.map((s) => (
           <div key={s.label} className="bg-blue-50/70 backdrop-blur-sm rounded-2xl px-5 py-4 border border-blue-100/80 shadow-sm flex items-center gap-4">
             <div className={`w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>
@@ -68,8 +68,10 @@ export default function Sidebar({ providers, coords, selectedProvider }) {
         ))}
       </div>
 
-      {/* Map */}
-      <ProviderMap providers={providers} coords={coords} selectedProvider={selectedProvider} />
+      {/* Map — fills remaining space */}
+      <div className="flex-1 min-h-0">
+        <ProviderMap providers={providers} coords={coords} selectedProvider={selectedProvider} />
+      </div>
 
     </aside>
   );

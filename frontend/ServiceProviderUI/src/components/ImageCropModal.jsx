@@ -88,7 +88,14 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
 
   const onDown = (e) => {
     e.preventDefault();
-    if (e.touches?.length === 2) return;
+    if (e.touches?.length === 2) {
+      drag.current = null;
+      const dx = e.touches[0].clientX - e.touches[1].clientX;
+      const dy = e.touches[0].clientY - e.touches[1].clientY;
+      lastPinch.current = Math.hypot(dx, dy);
+      return;
+    }
+    lastPinch.current = null;
     const { x, y } = getXY(e);
     drag.current = { startX: x, startY: y, startTx: transform.x, startTy: transform.y };
   };
@@ -96,6 +103,7 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
   const onMove = (e) => {
     e.preventDefault();
     if (e.touches?.length === 2) {
+      drag.current = null;
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
       const dist = Math.hypot(dx, dy);
@@ -107,9 +115,7 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
     const { x, y } = getXY(e);
     const dx = x - drag.current.startX;
     const dy = y - drag.current.startY;
-    const startTx = drag.current.startTx;
-    const startTy = drag.current.startTy;
-    setTransform(t => clamp(imgRef.current, { ...t, x: startTx + dx, y: startTy + dy }));
+    setTransform(t => clamp(imgRef.current, { ...t, x: drag.current.startTx + dx, y: drag.current.startTy + dy }));
   };
 
   const onUp = () => { drag.current = null; lastPinch.current = null; };

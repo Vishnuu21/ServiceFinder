@@ -110,7 +110,7 @@ export default function ProviderMap({ providers, coords, selectedProvider }) {
     : [displayCoords.lat, displayCoords.lon];
 
   return (
-    <div className="rounded-2xl overflow-hidden border border-[var(--color-border)]/40 shadow-sm relative" style={{ height: "calc(50.5vh - 100px)" }}>
+    <div className="rounded-2xl overflow-hidden border border-[var(--color-border)]/40 shadow-sm relative h-full">
       <MapContainer center={center} zoom={14} style={{ height: "100%", width: "100%" }} scrollWheelZoom={true} attributionControl={SHOW_MAP_ATTRIBUTION}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

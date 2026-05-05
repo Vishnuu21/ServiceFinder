@@ -63,6 +63,19 @@ public class AdminController {
             bookingRepo.deleteByCustomerId(id);
             favouriteRepo.deleteByUserId(id);
             reviewRepo.deleteByUserId(id);
+            // If PROVIDER — also delete all their service listings and related data
+            if (target.getRole() == User.Role.PROVIDER) {
+                providerRepo.findAll().stream()
+                        .filter(p -> p.getName().equalsIgnoreCase(target.getName()))
+                        .forEach(p -> {
+                            bookingRepo.cancelActiveBookingsByProviderId(p.getId());
+                            reviewRepo.deleteByProviderId(p.getId());
+                            bookingRepo.deleteByProviderId(p.getId());
+                            favouriteRepo.deleteByProviderId(p.getId());
+                            workingHoursRepo.deleteByProviderId(p.getId());
+                            providerRepo.deleteById(p.getId());
+                        });
+            }
             userRepo.deleteById(id);
             return ResponseEntity.ok(Map.of("message", "User deleted"));
         } catch (Exception e) {
@@ -133,6 +146,7 @@ public class AdminController {
     @DeleteMapping("/providers/{id}")
     public ResponseEntity<?> deleteProvider(@PathVariable Long id) {
         try {
+            bookingRepo.cancelActiveBookingsByProviderId(id);
             reviewRepo.deleteByProviderId(id);
             bookingRepo.deleteByProviderId(id);
             favouriteRepo.deleteByProviderId(id);
