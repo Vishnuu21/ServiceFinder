@@ -4,7 +4,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from "react-lea
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getServices, getOrCreateService, registerProvider, getMyProviderServices } from "../services/providerService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { SHOW_MAP_ATTRIBUTION } from "../config/location";
 import { useScrollLock } from "../hooks/useScrollLock";
 

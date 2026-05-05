@@ -1,7 +1,7 @@
 // src/pages/MyBookingsPage.jsx
 import { useState, useEffect } from "react";
 import { getMyBookings, updateBookingStatus } from "../services/providerService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import Header from "../components/Header";
 import FloatingBackground from "../components/FloatingBackground";
 
@@ -51,7 +51,7 @@ function BookingCard({ b, user, onAction }) {
                   {user?.role === "PROVIDER" ? b.customerName : b.providerName}
                 </p>
               )}
-              <p className="text-xs text-[var(--color-text-secondary)]">{b.serviceName}</p>
+              <p className="text-xs text-[var(--color-text-secondary)]">{isAdmin ? b.serviceName : user?.role === "PROVIDER" ? `Requested Service: ${b.serviceName}` : b.serviceName}</p>
             </div>
           </div>
 

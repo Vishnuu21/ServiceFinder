@@ -8,7 +8,7 @@ import Header from "../components/Header";
 import BookingModal from "../components/BookingModal";
 import ReviewModal from "../components/ReviewModal";
 import FloatingBackground from "../components/FloatingBackground";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { SHOW_MAP_ATTRIBUTION } from "../config/location";
 
 export default function FavouritesPage() {

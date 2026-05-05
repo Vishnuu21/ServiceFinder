@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { getProviderById, addFavourite, removeFavourite, checkFavourite } from "../services/providerService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import Header from "../components/Header";
 import BookingModal from "../components/BookingModal";
 import ReviewModal from "../components/ReviewModal";

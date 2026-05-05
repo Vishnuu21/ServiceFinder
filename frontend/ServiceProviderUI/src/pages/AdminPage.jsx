@@ -1,6 +1,6 @@
 // src/pages/AdminPage.jsx
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { useNavigate } from "react-router-dom";
 import FloatingBackground from "../components/FloatingBackground";
 import ImageCropModal from "../components/ImageCropModal";

@@ -1,7 +1,7 @@
 // src/components/ProviderCard.jsx
 import { useState, useEffect } from "react";
 import { addFavourite, removeFavourite, checkFavourite } from "../services/providerService";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { useNavigate } from "react-router-dom";
 
 /* Renders one star icon (filled or empty) */

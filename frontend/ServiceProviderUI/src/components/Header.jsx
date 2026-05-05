@@ -1,6 +1,6 @@
 // src/components/Header.jsx
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../context/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 import AddProviderModal from "./AddProviderModal";
 import WorkingHoursModal from "./WorkingHoursModal";

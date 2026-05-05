@@ -3,7 +3,7 @@ import { createContext, useContext, useState } from "react";
 import { SHOW_WELCOME_SPLASH } from "../config/location";
 import { fetchMe } from "../services/authService";
 
-const AuthContext = createContext(null);
+export const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
@@ -69,8 +69,4 @@ export function AuthProvider({ children }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  return useContext(AuthContext);
 }
