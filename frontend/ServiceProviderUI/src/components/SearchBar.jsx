@@ -13,7 +13,7 @@ function SearchBar({ onSearch }) {
       
       <input
         type="text"
-        placeholder="Search service (e.g. Plumber)"
+        placeholder="Search service  (e.g. Plumber)"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="w-full p-3 border rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-blue-400"
