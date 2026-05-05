@@ -7,9 +7,13 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
   const canvasRef = useRef(null);
   const [imgEl, setImgEl] = useState(null);
   const [transform, setTransform] = useState({ x: 0, y: 0, scale: 1 });
+  const transformRef = useRef(transform);
   const drag = useRef(null);
   const lastPinch = useRef(null);
   const imgRef = useRef(null);
+
+  // keep transformRef in sync so handlers never go stale
+  useEffect(() => { transformRef.current = transform; }, [transform]);
 
   useEffect(() => {
     const img = new Image();
@@ -65,19 +69,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
 
   useEffect(() => { draw(); }, [draw]);
 
-  // non-passive wheel listener using ref to avoid re-attaching
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const handler = (e) => {
-      e.preventDefault();
-      const delta = e.deltaY < 0 ? 1.08 : 0.93;
-      setTransform(t => clamp(imgRef.current, { ...t, scale: t.scale * delta }));
-    };
-    canvas.addEventListener("wheel", handler, { passive: false });
-    return () => canvas.removeEventListener("wheel", handler);
-  }, []);
-
   const getXY = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const s = SIZE / rect.width;
@@ -86,7 +77,8 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
     return { x: (clientX - rect.left) * s, y: (clientY - rect.top) * s };
   };
 
-  const onDown = (e) => {
+  // stable handlers — read transform from ref, never from closure
+  const onDown = useCallback((e) => {
     e.preventDefault();
     if (e.touches?.length >= 2) {
       drag.current = null;
@@ -97,10 +89,11 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
     }
     lastPinch.current = null;
     const { x, y } = getXY(e);
-    drag.current = { startX: x, startY: y, startTx: transform.x, startTy: transform.y };
-  };
+    const t = transformRef.current;
+    drag.current = { startX: x, startY: y, startTx: t.x, startTy: t.y };
+  }, []);
 
-  const onMove = (e) => {
+  const onMove = useCallback((e) => {
     e.preventDefault();
     if (e.touches?.length >= 2) {
       drag.current = null;
@@ -118,20 +111,47 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
     const { x, y } = getXY(e);
     const dx = x - drag.current.startX;
     const dy = y - drag.current.startY;
-    setTransform(t => clamp(imgRef.current, { ...t, x: drag.current.startTx + dx, y: drag.current.startTy + dy }));
-  };
+    const startTx = drag.current.startTx;
+    const startTy = drag.current.startTy;
+    setTransform(t => clamp(imgRef.current, { ...t, x: startTx + dx, y: startTy + dy }));
+  }, []);
 
-  const onUp = (e) => {
-    if (e?.touches?.length >= 2) return; // still pinching
+  const onUp = useCallback((e) => {
+    if (e?.touches?.length >= 2) return;
     if (e?.touches?.length === 1) {
-      // one finger lifted, one remains — reset drag to current position
       lastPinch.current = null;
       drag.current = null;
       return;
     }
     drag.current = null;
     lastPinch.current = null;
-  };
+  }, []);
+
+  // attach once — stable refs mean this never re-runs mid-drag
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const onWheel = (e) => {
+      e.preventDefault();
+      const delta = e.deltaY < 0 ? 1.08 : 0.93;
+      setTransform(t => clamp(imgRef.current, { ...t, scale: t.scale * delta }));
+    };
+
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+    canvas.addEventListener("touchstart", onDown, { passive: false });
+    canvas.addEventListener("touchmove", onMove, { passive: false });
+    canvas.addEventListener("touchend", onUp, { passive: false });
+    canvas.addEventListener("touchcancel", onUp, { passive: false });
+
+    return () => {
+      canvas.removeEventListener("wheel", onWheel);
+      canvas.removeEventListener("touchstart", onDown);
+      canvas.removeEventListener("touchmove", onMove);
+      canvas.removeEventListener("touchend", onUp);
+      canvas.removeEventListener("touchcancel", onUp);
+    };
+  }, [onDown, onMove, onUp]);
 
   const handleConfirm = () => {
     if (!imgEl) return;
@@ -159,10 +179,6 @@ export default function ImageCropModal({ imageSrc, onConfirm, onCancel }) {
           onMouseMove={onMove}
           onMouseUp={onUp}
           onMouseLeave={onUp}
-          onTouchStart={onDown}
-          onTouchMove={onMove}
-          onTouchEnd={onUp}
-          onTouchCancel={onUp}
         />
         <div className="flex gap-3 mt-4">
           <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border-2 border-[var(--color-border)] text-[var(--color-text-secondary)] font-bold text-sm hover:bg-[var(--color-muted)] transition-all">Cancel</button>
