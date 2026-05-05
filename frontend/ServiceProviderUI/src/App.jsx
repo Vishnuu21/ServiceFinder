@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { getNearbyProviders, searchProviders, getServices } from "./services/providerService";
-import { useAuth } from "./context/AuthContext";
+import { useAuth } from "./context/useAuth";
 
 import Header from "./components/Header";
 import SearchSection from "./components/SearchSection";
