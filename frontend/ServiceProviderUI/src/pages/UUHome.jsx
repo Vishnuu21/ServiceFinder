@@ -124,4 +124,3 @@ export default function Home() {
   );
 }
 
-/// for fixing the bugs
