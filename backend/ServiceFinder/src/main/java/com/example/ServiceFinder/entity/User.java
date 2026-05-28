@@ -26,7 +26,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(columnDefinition = "LONGTEXT")
+    @Column(columnDefinition = "TEXT")
     private String profilePicture;
 
     public enum Role {
