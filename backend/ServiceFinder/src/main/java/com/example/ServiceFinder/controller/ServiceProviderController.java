@@ -1,13 +1,11 @@
 package com.example.ServiceFinder.controller;
 
-import com.example.ServiceFinder.dto.response.ProviderResponse;
 import com.example.ServiceFinder.entity.ServiceProvider;
 import com.example.ServiceFinder.service.ServiceProviderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

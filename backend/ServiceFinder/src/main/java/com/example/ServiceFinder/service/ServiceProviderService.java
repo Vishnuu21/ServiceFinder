@@ -19,6 +19,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
+@SuppressWarnings("null")
 public class ServiceProviderService {
 
     private final ServiceProviderRepository repo;

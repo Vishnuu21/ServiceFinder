@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@SuppressWarnings("null")
 public class WorkingHoursService {
 
     private final WorkingHoursRepository repo;

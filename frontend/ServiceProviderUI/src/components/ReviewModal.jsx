@@ -1,6 +1,6 @@
 // src/components/ReviewModal.jsx
 import { useState, useEffect } from "react";
-import { getReviews, addReview, editReview, deleteReview } from "../services/providerService";
+import { getReviews, addReview, editReview, deleteReview, checkCompletedBooking } from "../services/providerService";
 import { useAuth } from "../context/useAuth";
 import { useScrollLock } from "../hooks/useScrollLock";
 
@@ -42,6 +42,7 @@ export default function ReviewModal({ provider, onClose, onReviewChange }) {
   const [loading, setLoading] = useState(false);
   const [myReview, setMyReview] = useState(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [hasCompleted, setHasCompleted] = useState(false);
 
   const fetchReviews = async () => {
     const data = await getReviews(provider.id);
@@ -52,6 +53,12 @@ export default function ReviewModal({ provider, onClose, onReviewChange }) {
   };
 
   useEffect(() => { fetchReviews(); }, []);
+
+  useEffect(() => {
+    if (user?.role === "CUSTOMER") {
+      checkCompletedBooking(provider.id).then(setHasCompleted).catch(() => {});
+    }
+  }, [provider.id, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -92,7 +99,7 @@ export default function ReviewModal({ provider, onClose, onReviewChange }) {
     }
   };
 
-  const canReview = user?.role === "CUSTOMER" && !myReview;
+  const canReview = user?.role === "CUSTOMER" && !myReview && hasCompleted;
   const isEditing = editingId !== null;
 
   return (
@@ -168,6 +175,13 @@ export default function ReviewModal({ provider, onClose, onReviewChange }) {
                   </button>
                 </div>
               </form>
+            </div>
+          )}
+
+          {/* No completed booking message */}
+          {user?.role === "CUSTOMER" && !hasCompleted && !myReview && (
+            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-700 font-semibold">
+              ⚠️ You can only review after a completed booking with this provider.
             </div>
           )}
 

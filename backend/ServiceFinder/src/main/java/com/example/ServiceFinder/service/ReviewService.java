@@ -5,6 +5,7 @@ import com.example.ServiceFinder.dto.response.ReviewResponse;
 import com.example.ServiceFinder.entity.Review;
 import com.example.ServiceFinder.entity.ServiceProvider;
 import com.example.ServiceFinder.entity.User;
+import com.example.ServiceFinder.repository.BookingRepository;
 import com.example.ServiceFinder.repository.ReviewRepository;
 import com.example.ServiceFinder.repository.ServiceProviderRepository;
 import com.example.ServiceFinder.repository.UserRepository;
@@ -13,18 +14,22 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@SuppressWarnings("null")
 public class ReviewService {
 
     private final ReviewRepository reviewRepo;
     private final UserRepository userRepo;
     private final ServiceProviderRepository providerRepo;
+    private final BookingRepository bookingRepo;
 
     public ReviewService(ReviewRepository reviewRepo,
                          UserRepository userRepo,
-                         ServiceProviderRepository providerRepo) {
+                         ServiceProviderRepository providerRepo,
+                         BookingRepository bookingRepo) {
         this.reviewRepo = reviewRepo;
         this.userRepo = userRepo;
         this.providerRepo = providerRepo;
+        this.bookingRepo = bookingRepo;
     }
 
     public ReviewResponse addReview(String email, ReviewRequest request) {
@@ -33,6 +38,12 @@ public class ReviewService {
 
         if (user.getRole() == User.Role.ADMIN || user.getRole() == User.Role.SUPER_ADMIN)
             throw new RuntimeException("Admins cannot leave reviews");
+
+        boolean hasCompletedBooking = bookingRepo.existsByCustomerIdAndProviderIdAndStatus(
+                user.getId(), request.getProviderId(), com.example.ServiceFinder.entity.Booking.Status.COMPLETED);
+        if (!hasCompletedBooking)
+            throw new RuntimeException("You can only review a provider after a completed booking");
+
         if (reviewRepo.existsByUserIdAndProviderId(user.getId(), request.getProviderId())) {
             throw new RuntimeException("You have already reviewed this provider");
         }

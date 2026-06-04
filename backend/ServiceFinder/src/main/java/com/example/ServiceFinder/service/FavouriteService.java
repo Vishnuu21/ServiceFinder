@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
+@SuppressWarnings("null")
 public class FavouriteService {
 
     private final FavouriteRepository favouriteRepo;
@@ -72,7 +73,6 @@ public class FavouriteService {
     }
 
     public List<ProviderResponse> getMyServices(String email) {
-        User user = getUser(email);
         return providerRepo.findAll().stream()
                 .filter(p -> email.equalsIgnoreCase(p.getEmail()))
                 .map(p -> toResponse(p, 0.0, 0.0))

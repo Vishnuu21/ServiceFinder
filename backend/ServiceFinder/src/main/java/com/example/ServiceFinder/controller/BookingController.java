@@ -51,6 +51,16 @@ public class BookingController {
         }
     }
 
+    @GetMapping("/has-completed/{providerId}")
+    public ResponseEntity<?> hasCompletedBooking(@PathVariable Long providerId, Authentication auth) {
+        try {
+            boolean result = bookingService.hasCompletedBookingWithProvider(auth.getName(), providerId);
+            return ResponseEntity.ok(Map.of("hasCompleted", result));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
+    }
+
     @PatchMapping("/{id}/status")
     public ResponseEntity<?> updateStatus(@PathVariable Long id,
                                            @RequestBody Map<String, String> body,

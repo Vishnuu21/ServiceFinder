@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@SuppressWarnings("null")
 public class BookingService {
 
     private final BookingRepository bookingRepo;
@@ -114,14 +115,23 @@ public class BookingService {
         return toResponse(bookingRepo.save(booking));
     }
 
+    public boolean hasCompletedBookingWithProvider(String email, Long providerId) {
+        User customer = userRepo.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return bookingRepo.existsByCustomerIdAndProviderIdAndStatus(
+                customer.getId(), providerId, Booking.Status.COMPLETED);
+    }
+
     private BookingResponse toResponse(Booking b) {
         String providerPic = b.getProvider().getEmail() != null && !b.getProvider().getEmail().isEmpty()
                 ? userRepo.findProfilePictureByEmail(b.getProvider().getEmail()).orElse(null)
                 : userRepo.findProfilePictureByName(b.getProvider().getName()).orElse(null);
+        String customerPic = userRepo.findProfilePictureByEmail(b.getCustomer().getEmail()).orElse(null);
         return new BookingResponse(
                 b.getId(),
                 b.getCustomer().getId(),
                 b.getCustomer().getName(),
+                customerPic,
                 b.getProvider().getName(),
                 b.getProvider().getService().getName(),
                 b.getProvider().getPhone(),

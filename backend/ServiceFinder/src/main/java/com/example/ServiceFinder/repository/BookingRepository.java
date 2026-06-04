@@ -11,6 +11,7 @@ import java.util.List;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
     List<Booking> findByCustomerIdOrderByCreatedAtDesc(Long customerId);
     List<Booking> findByProviderIdOrderByCreatedAtDesc(Long providerId);
+    boolean existsByCustomerIdAndProviderIdAndStatus(Long customerId, Long providerId, Booking.Status status);
     @Transactional
     void deleteByProviderId(Long providerId);
     @Transactional

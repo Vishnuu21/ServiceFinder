@@ -6,6 +6,7 @@ import com.example.ServiceFinder.repository.ServiceRepository;
 import java.util.List;
 
 @org.springframework.stereotype.Service
+@SuppressWarnings("null")
 public class ServiceService {
 
     private final ServiceRepository repo;

@@ -38,6 +38,8 @@ function BookingCard({ b, user, onAction }) {
             <div className="w-8 h-8 rounded-lg overflow-hidden bg-[var(--color-brand-light)] flex items-center justify-center text-[var(--color-brand)] font-bold text-sm flex-shrink-0">
               {user?.role === "CUSTOMER" && b.providerProfilePicture
                 ? <img src={b.providerProfilePicture} alt={b.providerName} className="w-full h-full object-cover" />
+                : user?.role === "PROVIDER" && b.customerProfilePicture
+                ? <img src={b.customerProfilePicture} alt={b.customerName} className="w-full h-full object-cover" />
                 : (user?.role === "PROVIDER" ? b.customerName : b.providerName)?.charAt(0).toUpperCase()
               }
             </div>

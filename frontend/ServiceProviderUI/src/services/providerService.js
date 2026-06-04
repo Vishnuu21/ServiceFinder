@@ -172,6 +172,15 @@ export async function getMyFavouriteCount() {
   return data.count;
 }
 
+export async function checkCompletedBooking(providerId) {
+  const token = localStorage.getItem("token");
+  const res = await fetch(`${BOOKINGS_URL}/has-completed/${providerId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  return data.hasCompleted === true;
+}
+
 export async function getProviderById(id) {
   const res = await fetch(`${PROVIDERS_URL}/${id}`);
   return res.json();

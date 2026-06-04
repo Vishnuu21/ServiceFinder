@@ -10,6 +10,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@SuppressWarnings("null")
 public class AuthService {
 
     private final UserRepository userRepository;
@@ -36,7 +37,7 @@ public class AuthService {
             throw new RuntimeException("Invalid role. Must be CUSTOMER or PROVIDER.");
 
         if (userRepository.existsByEmail(request.getEmail())) {
-            User existing = userRepository.findByEmail(request.getEmail()).get();
+            User existing = userRepository.findByEmail(request.getEmail()).orElseThrow();
             if (!existing.getRole().equals(role)) {
                 throw new RuntimeException(
                     "You are already registered as a " + existing.getRole().name() +
